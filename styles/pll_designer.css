@@ -1,0 +1,195 @@
+@charset "UTF-8";
+
+path {
+  stroke-width: 2;
+  fill: none;
+}
+
+  .axis path,
+    .axis line {
+      fill: none;
+      stroke: grey;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+.diagram-container {
+  width: 100%;
+  position:relative;
+  vertical-align: middle;
+  display: inline-block;
+  margin: 10px; 
+  /* background-color:#2ec771;*/
+  border:2px solid black;
+  min-width: 700px;
+  max-width: 750px; 
+}
+
+#blkDiag {
+  top:0px;
+  left:0;
+  bottom:0;
+  right:0;
+  position:relative;
+}
+
+.svg-content {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  border: 1px solid black;
+  /*padding-bottom: 100%;*/
+  vertical-align: middle;
+  overflow: hidden;
+  min-width: 500px;
+  max-width: 750px; 
+}
+
+
+  #pmGraph {
+  }
+
+  #clGraph {
+  }
+
+  #vcoPnGraph {
+    max-width: 600px; 
+    float: right;
+  }
+
+  #refPnGraph {
+    max-width: 600px; 
+    float: right;
+  }
+
+  #pnGraph {
+    /* display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0; */
+  }
+
+  .svg {
+    display: inline-block;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+
+
+
+.plot-panel {
+  display: inline-block;
+  min-width: 850px;
+  max-width: 950px; 
+  width: 850px;
+  height: 600px; 
+}
+
+.phase-noise-table {
+  float: left;
+}
+
+th, td {
+  border: 1px solid #dddddd;
+  padding: 10px;
+}
+ tr:nth-child(even) {
+   background-color: #dddddd;
+ }
+
+
+#pllIcAttributes {
+  float: left;
+}
+  
+.pll-form-input {
+  width: 80px;
+  /* background:#00FF00;
+  /*border:2px solid black;*/
+}
+
+.pll-component-input {
+  width: 90px;
+  /* background:#00FF00;
+  /* border:2px solid black;*/
+}
+
+  #fomLabel {
+    position: absolute;
+    top: 75%;
+    left: 65%;
+    width:150px;
+    text-align: right;
+  }
+
+  #pllFom {
+    position: absolute;
+    width: 80px;
+    top: 73%;
+    left: 87%;
+  }
+
+  #flickerLabel {
+    position: absolute;
+    top: 87%;
+    left: 65%;
+    width:150px;
+    text-align: right;
+  }
+
+  #pllFlicker {
+    position: absolute;
+    width: 80px;
+    top: 85%;
+    left: 87%;
+  }
+
+  #fref {
+    position: absolute;
+    top: 62%;
+    left: 0.5%;
+  }
+
+  #fout {
+    position: absolute;
+    top: 46%;
+    left: 87%;  
+  }
+    
+  #fpfd {
+    position: absolute;
+    top: 28%;
+    left: 28%;
+  }
+
+  #divR {
+    position: absolute;
+    top: 28%;
+    left: 14%;
+  }
+
+  #divN {
+    position: absolute;
+    top: 79%;
+    left: 28%;
+  }
+
+  #kphi {
+    position: absolute;
+    top: 28%;
+    left: 42%;
+  }
+
+  #kvco {
+    position: absolute;
+    top: 28%;
+    left: 70%;
+  }

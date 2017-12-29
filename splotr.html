@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>SPLOTR</title>
+  <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.17.0/math.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/splotr.css" />
+  <link rel="stylesheet" type="text/css" href="styles/style.css" />
+  <script type="text/javascript" src="scripts/splotr.js"></script>
+</head>
+<body>
+
+    <div class="topnav" id="myTopnav">
+      <a href="index.html">Home</a>
+      <a href="pll_designer.html">PLL Designer</a>
+      <a class="active" href="splotr.html">Splotr</a>
+    </div>
+
+<div class="container-fluid text-center">
+
+  <div>
+    <h2>SPLOTR</h2>
+  </div>
+
+  <div >
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="ts_file">
+      <button type="submit">Upload </button>
+    </form>
+    <button type="button" id="plotBtn" class="btn btn-default" onclick="plot()">plot</button>
+  </div>
+  <div >
+
+    <div id="chart1" class="chart" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragend="dragend_handler(event);"></div>
+    <script type="text/javascript">
+      graph = new LogMagPlot("chart1", {
+          "xmax": 6e9, "xmin": 0,
+          "ymax": 20, "ymin": -50, 
+          "title": "S Parameters",
+          "xlabel": "Frequency",
+          "ylabel": "dB"  
+        });
+    </script>
+  </div>
+  <div id="s2p data" >
+    <textarea id="file_data" rows=50 cols=120 >
+    </textarea>
+  </div>
+</body>
+</html>

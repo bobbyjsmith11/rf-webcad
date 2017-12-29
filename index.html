@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="styles/style.css" />
+
+</head>
+  <body>
+
+    <div class="topnav" id="myTopnav">
+      <a class="active" href="index.html">Home</a>
+      <a href="pll_designer.html">PLL Designer</a>
+      <a href="splotr.html">Splotr</a>
+    </div>
+
+<div class="container-fluid text-center">
+  <h1>Overview</h1>
+  <p>This website is a collection of free tools to help in the design of RF circuits. Any suggestions or bug fixes are greatly apprecaiated (see contact info in footer).</p>
+  <div>
+   <h1>PLL Designer</h1>
+    <p>This tool is for designing and simulating Phase-Locked Loops (PLL). 
+    Users can design the loop filter components based on desired loop bandwidth and
+    phase margin. Phase noise is also simulated based on constants found in 
+    most data sheets for PLL ICs.</p>
+    <p>All of the PLL design calculations are of my own design and were written in python. 
+    However, some of the formulas and simulations are based on <a href="http://www.ti.com/tool/PLL_BOOK">Dean Banerjee's fantastic book on phase-locked loops</a></p>
+    <h3>Implemented Features</h3>
+    <ul>
+      <li>2nd order passive loop filter</li>
+      <li>3rd order passive loop filter</li>
+      <li>4th order passive loop filter (well, it kinda works)</li>
+      <li>phase noise simulation</li>
+    </ul>
+    <h3>Features on the Roadmap</h3>
+    <ul>
+      <li>2nd order active loop filter</li>
+      <li>3rd order active loop filter</li>
+      <li>4th order active loop filter</li>
+      <li>lock loop filter component values while changing others</li>
+    </ul>
+  </div>
+  <div>
+   <h2>S Plotter</h2>
+   <p>With the S Plotter, users can upload touchstone data and view it in the text area. The data can be viewed in the text area and plotted 
+   in log-magnitude format (currently). Graphs allow for dynamic zooming and rescaling and a marker with trace values follows the mouse cursor.
+   </p>
+   <p>The S-Plotter application makes heavy use of the <a href="http://scikit-rf-web.readthedocs.io/#">Scikit-RF</a> python module.
+  </p>
+    <h3>Implemented Features</h3>
+    <ul>
+      <li>log-magnitude plot</li>
+      <li>zooming, rescaling and resetting of scales</li>
+      <li>marker follows cursor</li>
+    </ul>
+    <h3>Features on the Roadmap</h3>
+    <ul>
+      <li>save marker and marker delta</li>
+      <li>export png/pdf</li>
+      <li>export touchstone data in desired format (db/mag/real-imag)</li>
+      <li>magnitude-angle plot</li>
+      <li>Smith chart</li>
+      <li>impedance matching</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
