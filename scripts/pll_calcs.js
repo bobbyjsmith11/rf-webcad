@@ -112,8 +112,6 @@ function synthPll () {
 }
 
 function simulatePll( ) {
-  my_url = "/pllapp/pll_calcs/callSimulatePll"
-
   var dat_json = {
                   "fstart": 0.1,
                   "fstop": 100e6,
@@ -132,14 +130,14 @@ function simulatePll( ) {
                   "r4=": loop_filter.r4
   };
   $.ajax( {
-            type: "GET",
-            datatype: 'json',
+            type: "POST",
+            datatype: 'JSON',
             async: true,
             data: dat_json,
 		        url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/simulatePll",
             contentType: "application/json",
             success: function (data) {
-              // console.log(data)
+              console.log(data)
               if (PM_PLOT_PRESENT) {
                 updateGainPhaseMarginGraph( data.gains , data.phases, data.freqs );
                 setPm(data.pzero);
@@ -151,9 +149,7 @@ function simulatePll( ) {
                 plotClosedLoop( data.ref_cl , data.vco_cl, data.freqs );
                 CL_PLOT_PRESENT = true;  
               }
-              ////////////////////////////////////
-              // simulatePhaseNoise();
-              ////////////////////////////////////
+              simulatePhaseNoise();
             },
             error: function (result) {
             }
@@ -600,14 +596,6 @@ function loadPll2PassiveForm() {
 
 
 function solveComponents( loop_type, gamma ) {
-  // my_url = "/pllapp/solveForComponents?";
-  // dat = "loop_type=" + loop_type 
-  //       + "&fc=" + pll.fc 
-  //       + "&pm=" + pll.pm
-  //       + "&kphi=" + pll.kphi
-  //       + "&kvco=" + pll.kvco
-  //       + "&N=" + pll.N
-  //       + "&gamma=" + gamma;
 
   var dat_json = {
                   "fc": pll.fc,
@@ -623,9 +611,7 @@ function solveComponents( loop_type, gamma ) {
             type: "POST",
             datatype: 'JSON',
             async: true,
-            // data: dat,
             data: JSON.stringify(dat_json),
-            // url: my_url,
 		        url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/solveForComponents",
             contentType: "application/json",
             success: function (data) {
