@@ -2,54 +2,54 @@
  * non-case-sensitive
 */
 
-// window.onload = function() {
-//   math.createUnit("HZ",  {definition: "1 Hz",  aliases: ['hz']  } );
-//   math.createUnit("MHZ", {definition: "1 MHz", aliases: ["Mhz"]  } );
-//   math.createUnit("GHZ", {definition: "1 GHz", aliases: ["Ghz"]  } );
-//   math.createUnit("THZ", {definition: "1 THz", aliases: ["Thz"]  } );
-//   
-//   // math.createUnit("Ohm",  {definition: "1 ohm",  aliases: ['OHM']  } );
-//   math.createUnit("kOhm",  {definition: "1 kohm",  aliases: ['KOHM', 'kOHM']  } );
-//   math.createUnit("MOhm",  {definition: "1 Mohm",  aliases: ['MOHM']  } );
-//   math.createUnit("GOhm",  {definition: "1 Gohm",  aliases: ['GOHM']  } );
-//   math.createUnit("TOhm",  {definition: "1 Tohm",  aliases: ['OHM']  } );
-//   
-//   // math.createUnit("HZ/V",  {definition: "1 Hz",  aliases: ['hz/V','Hz/V']  } );
-//   // math.createUnit("MHZ/V", {definition: "1 MHz", aliases: ["Mhz/V", "MHz/V"]  } );
-//   // math.createUnit("GHZ/V", {definition: "1 GHz", aliases: ["Ghz/V", "GHz/V"]  } );
-//   // math.createUnit("THZ/V", {definition: "1 THz", aliases: ["Thz/V", "THz/V"]  } );
-//   
-//   getFref();
-//   getR();
-//   getFpfd();
-//   getN();
-//   getFout();
-//   getFc();
-//   getKphi();
-//   getKvco();
-//   getPm();
-//   getFom();
-// 
-//   // synthPll();
-//   setFilterType();
-//   // document.getElementById("refPnTable").addEventListener('change', refTableChangedHandler)
-//   //
-//   var refTable = document.getElementById("refPnTable");
-//   refTable.addEventListener('focusout', refTableChangedHandler);
-//   refTable.addEventListener('keydown', checkForEnter, true);
-//   refPhaseNoise = readReferencePhaseNoise();  // global variable
-//   refTableChangedHandler();
-//   graphReferencePhaseNoise();
-// 
-//   var vcoTable = document.getElementById("vcoPnTable");
-//   vcoTable.addEventListener('focusout', vcoTableChangedHandler);
-//   vcoTable.addEventListener('keydown', checkForEnter, true);
-//   vcoPhaseNoise = readVcoPhaseNoise();  // global variable
-//   vcoTableChangedHandler();
-//   graphVcoPhaseNoise();
-// 
-// 
-// }
+window.onload = function() {
+  math.createUnit("HZ",  {definition: "1 Hz",  aliases: ['hz']  } );
+  math.createUnit("MHZ", {definition: "1 MHz", aliases: ["Mhz"]  } );
+  math.createUnit("GHZ", {definition: "1 GHz", aliases: ["Ghz"]  } );
+  math.createUnit("THZ", {definition: "1 THz", aliases: ["Thz"]  } );
+  
+  // math.createUnit("Ohm",  {definition: "1 ohm",  aliases: ['OHM']  } );
+  math.createUnit("kOhm",  {definition: "1 kohm",  aliases: ['KOHM', 'kOHM']  } );
+  math.createUnit("MOhm",  {definition: "1 Mohm",  aliases: ['MOHM']  } );
+  math.createUnit("GOhm",  {definition: "1 Gohm",  aliases: ['GOHM']  } );
+  math.createUnit("TOhm",  {definition: "1 Tohm",  aliases: ['OHM']  } );
+  
+  // math.createUnit("HZ/V",  {definition: "1 Hz",  aliases: ['hz/V','Hz/V']  } );
+  // math.createUnit("MHZ/V", {definition: "1 MHz", aliases: ["Mhz/V", "MHz/V"]  } );
+  // math.createUnit("GHZ/V", {definition: "1 GHz", aliases: ["Ghz/V", "GHz/V"]  } );
+  // math.createUnit("THZ/V", {definition: "1 THz", aliases: ["Thz/V", "THz/V"]  } );
+  
+  getFref();
+  getR();
+  getFpfd();
+  getN();
+  getFout();
+  getFc();
+  getKphi();
+  getKvco();
+  getPm();
+  getFom();
+
+  synthPll();
+  // setFilterType();
+  // // document.getElementById("refPnTable").addEventListener('change', refTableChangedHandler)
+  // //
+  // var refTable = document.getElementById("refPnTable");
+  // refTable.addEventListener('focusout', refTableChangedHandler);
+  // refTable.addEventListener('keydown', checkForEnter, true);
+  // refPhaseNoise = readReferencePhaseNoise();  // global variable
+  // refTableChangedHandler();
+  // graphReferencePhaseNoise();
+
+  // var vcoTable = document.getElementById("vcoPnTable");
+  // vcoTable.addEventListener('focusout', vcoTableChangedHandler);
+  // vcoTable.addEventListener('keydown', checkForEnter, true);
+  // vcoPhaseNoise = readVcoPhaseNoise();  // global variable
+  // vcoTableChangedHandler();
+  // graphVcoPhaseNoise();
+
+
+}
 
 var PM_PLOT_PRESENT = false;  // indicates that plotGainPhaseMargin has been called at least once
 var CL_PLOT_PRESENT = false;  // indicates that plotClosedLoop has been called at least once
@@ -112,28 +112,32 @@ function synthPll () {
 }
 
 function simulatePll( ) {
-  my_url = "/pllapp/pll_calcs/callSimulatePll?"
-  dat = "fstart=" + 0.1 
-        + "&fstop=" + 100e6
-        + "&ptsPerDec=" + 99
-        + "&kphi=" + pll.kphi
-        + "&kvco=" + pll.kvco
-        + "&N=" + pll.N
-        + "&R=" + pll.R
-        + "&flt_type=" + loop_filter.type
-        + "&c1=" + loop_filter.c1
-        + "&c2=" + loop_filter.c2
-        + "&r2=" + loop_filter.r2
-        + "&c3=" + loop_filter.c3 
-        + "&c4=" + loop_filter.c4 
-        + "&r3=" + loop_filter.r3 
-        + "&r4=" + loop_filter.r4;
+  my_url = "/pllapp/pll_calcs/callSimulatePll"
+
+  var dat_json = {
+                  "fstart": 0.1,
+                  "fstop": 100e6,
+                  "ptsPerDec": 100,
+                  "kphi": pll.kphi,
+                  "kvco": pll.kvco, 
+                  "N": pll.N,
+                  "R": pll.R,
+                  "flt_typ": loop_filter.type,
+                  "c1=": loop_filter.c1,
+                  "c2=": loop_filter.c2,
+                  "r2=": loop_filter.r2,
+                  "c3=": loop_filter.c3,
+                  "c4=": loop_filter.c4,
+                  "r3=": loop_filter.r3,
+                  "r4=": loop_filter.r4
+  };
   $.ajax( {
             type: "GET",
-            url: my_url,
             datatype: 'json',
             async: true,
-            data: dat,
+            data: dat_json,
+		        url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/simulatePll",
+            contentType: "application/json",
             success: function (data) {
               // console.log(data)
               if (PM_PLOT_PRESENT) {
@@ -147,7 +151,9 @@ function simulatePll( ) {
                 plotClosedLoop( data.ref_cl , data.vco_cl, data.freqs );
                 CL_PLOT_PRESENT = true;  
               }
-              simulatePhaseNoise();
+              ////////////////////////////////////
+              // simulatePhaseNoise();
+              ////////////////////////////////////
             },
             error: function (result) {
             }
@@ -594,21 +600,34 @@ function loadPll2PassiveForm() {
 
 
 function solveComponents( loop_type, gamma ) {
-  my_url = "/pllapp/solveForComponents?";
-  dat = "loop_type=" + loop_type 
-        + "&fc=" + pll.fc 
-        + "&pm=" + pll.pm
-        + "&kphi=" + pll.kphi
-        + "&kvco=" + pll.kvco
-        + "&N=" + pll.N
-        + "&gamma=" + gamma;
+  // my_url = "/pllapp/solveForComponents?";
+  // dat = "loop_type=" + loop_type 
+  //       + "&fc=" + pll.fc 
+  //       + "&pm=" + pll.pm
+  //       + "&kphi=" + pll.kphi
+  //       + "&kvco=" + pll.kvco
+  //       + "&N=" + pll.N
+  //       + "&gamma=" + gamma;
+
+  var dat_json = {
+                  "fc": pll.fc,
+                  "pm": pll.pm,
+                  "kphi": pll.kphi,
+                  "kvco": pll.kvco, 
+                  "gamma": gamma,
+                  "N": pll.N,
+                  "loop_type": loop_type
+  };
 
   $.ajax( {
-            type: "GET",
-            url: my_url,
-            datatype: 'json',
+            type: "POST",
+            datatype: 'JSON',
             async: true,
-            data: dat,
+            // data: dat,
+            data: JSON.stringify(dat_json),
+            // url: my_url,
+		        url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/solveForComponents",
+            contentType: "application/json",
             success: function (data) {
               RET_DATA = data
               setT1(data.t1);
