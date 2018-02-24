@@ -30,23 +30,23 @@ window.onload = function() {
   getPm();
   getFom();
 
-  synthPll();
-  // setFilterType();
-  // // document.getElementById("refPnTable").addEventListener('change', refTableChangedHandler)
+  // synthPll();
+  setFilterType();
+  // document.getElementById("refPnTable").addEventListener('change', refTableChangedHandler)
   // //
-  // var refTable = document.getElementById("refPnTable");
-  // refTable.addEventListener('focusout', refTableChangedHandler);
-  // refTable.addEventListener('keydown', checkForEnter, true);
-  // refPhaseNoise = readReferencePhaseNoise();  // global variable
-  // refTableChangedHandler();
-  // graphReferencePhaseNoise();
+  var refTable = document.getElementById("refPnTable");
+  refTable.addEventListener('focusout', refTableChangedHandler);
+  refTable.addEventListener('keydown', checkForEnter, true);
+  refPhaseNoise = readReferencePhaseNoise();  // global variable
+  refTableChangedHandler();
+  graphReferencePhaseNoise();
 
-  // var vcoTable = document.getElementById("vcoPnTable");
-  // vcoTable.addEventListener('focusout', vcoTableChangedHandler);
-  // vcoTable.addEventListener('keydown', checkForEnter, true);
-  // vcoPhaseNoise = readVcoPhaseNoise();  // global variable
-  // vcoTableChangedHandler();
-  // graphVcoPhaseNoise();
+  var vcoTable = document.getElementById("vcoPnTable");
+  vcoTable.addEventListener('focusout', vcoTableChangedHandler);
+  vcoTable.addEventListener('keydown', checkForEnter, true);
+  vcoPhaseNoise = readVcoPhaseNoise();  // global variable
+  vcoTableChangedHandler();
+  graphVcoPhaseNoise();
 
 
 }
@@ -112,32 +112,35 @@ function synthPll () {
 }
 
 function simulatePll( ) {
-  var dat_json = {
-                  "fstart": 0.1,
-                  "fstop": 100e6,
-                  "ptsPerDec": 100,
-                  "kphi": pll.kphi,
-                  "kvco": pll.kvco, 
-                  "N": pll.N,
-                  "R": pll.R,
-                  "flt_typ": loop_filter.type,
-                  "c1=": loop_filter.c1,
-                  "c2=": loop_filter.c2,
-                  "r2=": loop_filter.r2,
-                  "c3=": loop_filter.c3,
-                  "c4=": loop_filter.c4,
-                  "r3=": loop_filter.r3,
-                  "r4=": loop_filter.r4
-  };
+   var dat_json = {
+                   "fc": pll.fc,
+                   "pm": pll.pm,
+                   "kphi": pll.kphi,
+                   "kvco": pll.kvco, 
+                   "N": pll.N,
+                   "R": pll.R,
+                   "fstart": 0.1,
+                   "fstop": 100e6,
+                   "ptsPerDec": 100,
+                   "flt_type": loop_filter.type,
+                   "c1": loop_filter.c1,
+                   "c2": loop_filter.c2,
+                   "c3": loop_filter.c3,
+                   "c4": loop_filter.c4,
+                   "r2": loop_filter.r2,
+                   "r3": loop_filter.r3,
+                   "r4": loop_filter.r4
+   };
   $.ajax( {
             type: "POST",
             datatype: 'JSON',
             async: true,
-            data: dat_json,
-		        url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/simulatePll",
+            data: JSON.stringify(dat_json),
+            url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/simulatePll", 
             contentType: "application/json",
+            crossDomain: true,
             success: function (data) {
-              console.log(data)
+              // console.log(data)
               if (PM_PLOT_PRESENT) {
                 updateGainPhaseMarginGraph( data.gains , data.phases, data.freqs );
                 setPm(data.pzero);
@@ -207,20 +210,22 @@ function simulatePhaseNoise() {
 }
 
 function graphReferencePhaseNoise() {
-  my_url = "/pllapp/callGetInterpolatedPhaseNoise?"
-  dat = "fstart=" + math.min( refPhaseNoise.freqs ) 
-        + "&fstop=" + math.max( refPhaseNoise.freqs ) 
-        + "&numPts=" + 1000 
-        + "&freqs=" + refPhaseNoise.freqs
-        + "&pns=" + refPhaseNoise.pns;
+   var dat_json = {
+                   "freqs": refPhaseNoise.freqs,
+                   "pns": refPhaseNoise.pns,
+                   "numPts": 1000
+   };
 
   $.ajax( {
-            type: "GET",
-            url: my_url,
+            type: "POST",
+            url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/callInterpolatePhaseNoise",
             datatype: 'json',
             async: true,
-            data: dat,
+            data: JSON.stringify(dat_json),
+            contentType: "application/json",
+            crossDomain: true,
             success: function (data) {
+              console.log("graphReferencePhaseNoise worked");
               if (REF_PLOT_PRESENT) {
                 updateReferencePhaseNoise( data.pns, data.freqs );
               } else {
@@ -234,20 +239,23 @@ function graphReferencePhaseNoise() {
 }
 
 function graphVcoPhaseNoise() {
-  my_url = "/pllapp/callGetInterpolatedPhaseNoise?"
-  dat = "fstart=" + math.min( vcoPhaseNoise.freqs ) 
-        + "&fstop=" + math.max( vcoPhaseNoise.freqs ) 
-        + "&numPts=" + 1000 
-        + "&freqs=" + vcoPhaseNoise.freqs
-        + "&pns=" + vcoPhaseNoise.pns;
 
-  $.ajax( {
-            type: "GET",
-            url: my_url,
+   var dat_json = {
+                   "freqs": vcoPhaseNoise.freqs,
+                   "pns": vcoPhaseNoise.pns,
+                   "numPts": 1000
+   };
+   console.log(dat_json);
+        $.ajax( {
+            type: "POST",
+            url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/callInterpolatePhaseNoise",
             datatype: 'json',
             async: true,
-            data: dat,
+            data: JSON.stringify(dat_json),
+            contentType: "application/json",
+            crossDomain: true,
             success: function (data) {
+              console.log("graphVcoPhaseNoise worked");
               if (VCO_PLOT_PRESENT) {
                 updateVcoPhaseNoise( data.pns, data.freqs );
               } else {

@@ -18,32 +18,19 @@ function helloNameWrapped () {
 
 function test_fn() {
     var dat_json = {
-                    "fc": 100e3,
-                    "pm": 45,
-                    "kphi": 5e-3,
-                    "kvco": 10e6, 
-                    "N": 200,
-                    "R": 1,
-                    "fstart": 0.1,
-                    "fstop": 100e6,
-                    "ptsPerDec": 100,
-                    "flt_type": "passive2",
-                    "c1": 2.6449935e-10,
-                    "c2": 1.277269e-9,
-                    "c3": 0,
-                    "c4": 0,
-                    "r2": 3044.2825,
-                    "r3": 0,
-                    "r4": 0
-                };
+        "freqs": [10,100,1000],
+        "pns": [-60,-80,-90],
+        "numPts": 1000
+    }
 
   $.ajax( {
+            url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/callInterpolatePhaseNoise",
             type: "POST",
             datatype: 'JSON',
-            async: true,
-            data: dat_json,
-		    url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/simulatePll",
             contentType: "application/json",
+            async: true,
+            crossDomain: true,
+            data: JSON.stringify(dat_json),
             success: function (data) {
                 MY_DAT = data;
                 console.log(data);
@@ -54,11 +41,7 @@ function test_fn() {
 }
 
 function test_fn2 () {
-    // var my_name = {'first_name' : 'Cristina', last_name : 'Freitas', what_i_like: 'bunda'};
-    // dat = "first_name=Cristina"
-    //       + "&last_name=Freitas"
-    //       + "&what_i_like=bunda";
-    // var my_name = {'first_name' : 'Cristina', last_name : 'Freitas', what_i_like: 'bunda'};
+    
     var dat_json = {
                     "fc": 100e3,
                     "pm": 45,

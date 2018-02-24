@@ -80,8 +80,8 @@ function plotGainPhaseMargin ( gdb, phi, freq) {
     var rightLine = d3.svg.line()
                     .x( function(d) { return x_scale(d.x_data); } )  
                     .y( function(d) { return y_right_scale(d.y_data); } )
-                    .interpolate("linear");f
-                    p
+                    .interpolate("linear");
+                   
 
     // create xAxis
     
