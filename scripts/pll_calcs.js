@@ -244,7 +244,6 @@ function graphReferencePhaseNoise() {
             contentType: "application/json",
             crossDomain: true,
             success: function (data) {
-              console.log("graphReferencePhaseNoise worked");
               if (REF_PLOT_PRESENT) {
                 updateReferencePhaseNoise( data.pns, data.freqs );
               } else {
@@ -264,7 +263,6 @@ function graphVcoPhaseNoise() {
                    "pns": vcoPhaseNoise.pns,
                    "numPts": 1000
    };
-   console.log(dat_json);
         $.ajax( {
             type: "POST",
             url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/callInterpolatePhaseNoise",
@@ -274,7 +272,6 @@ function graphVcoPhaseNoise() {
             contentType: "application/json",
             crossDomain: true,
             success: function (data) {
-              console.log("graphVcoPhaseNoise worked");
               if (VCO_PLOT_PRESENT) {
                 updateVcoPhaseNoise( data.pns, data.freqs );
               } else {
@@ -1314,7 +1311,6 @@ function readVcoPhaseNoise() {
 }
 
 function checkForEnter( e ) {
-  // console.log(e);
   if (e.key == "Enter") {
     refTableChangedHandler();
     $("#refPnTable").focusout;
