@@ -161,7 +161,6 @@ function simulatePll( ) {
 
 function simulatePhaseNoise() {
 
-  my_url = "/pllapp/pll_calcs/callSimulatePhaseNoise?"
   dat = "freqs=" + refPhaseNoise.freqs 
         + "&refPn=" + refPhaseNoise.pns
         + "&vcoPn=" + vcoPhaseNoise.pns
@@ -180,12 +179,32 @@ function simulatePhaseNoise() {
         + "&r3=" + loop_filter.r3 
         + "&r4=" + loop_filter.r4;
 
+    var dat_json = {
+                    "freqs": refPhaseNoise.freqs,
+                    "refPn": refPhaseNoise.pns,
+                    "vcoPn": vcoPhaseNoise.pns,
+                    "pllFom": pll.fom,
+                    "kphi": pll.kphi,
+                    "kvco": pll.kvco, 
+                    "fpfd": pll.fpfd,
+                    "N": pll.N,
+                    "R": pll.R,
+                    "flt_type": loop_filter.type,
+                    "c1": loop_filter.c1,
+                    "c2": loop_filter.c2,
+                    "c3": loop_filter.c3,
+                    "c4": loop_filter.c4,
+                    "r2": loop_filter.r2,
+                    "r3": loop_filter.r3,
+                    "r4": loop_filter.r4 
+                    }
   $.ajax( {
-            type: "GET",
-            url: my_url,
+            type: "POST",
+            url: "https://95zr214h42.execute-api.us-east-2.amazonaws.com/dev/callSimulatePhaseNoise",
             datatype: 'json',
             async: true,
-            data: dat,
+            data: JSON.stringify(dat_json),
+            crossDomain: true,
             success: function (data) {
               if (PN_PLOT_PRESENT) {
                 updatePhaseNoise( data.freqs,
