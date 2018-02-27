@@ -15,6 +15,7 @@ $(document).on("keydown", function (e) {
   }
 });
 
+
 registerKeyboardHandler = function(callback) {
   console.log("keydown");
   var callback = callback;
@@ -1023,23 +1024,30 @@ function test_ajax() {
 }
 
 function plot() {
-  my_url = "/splotr/get_logmag?"
-  dat = "";
+  var fid = document.getElementById("files");
+  var fname = fid.files[0].name;
+  var txt = document.getElementById("file_data");
+  var fdata = txt.value;
+
+  var dat_json = {
+                  "filedata": fdata,
+                  "filename": fname
+  };
+
   $.ajax( {
-            type: "GET",
-            url: my_url,
+            type: "POST",
+            url: "https://glxl3qdmrk.execute-api.us-east-2.amazonaws.com/dev/getLogMag",
             datatype: 'json',
             async: true,
-            data: dat,
+            data: JSON.stringify(dat_json),
+            crossDomain: true,
             success: function (data) {
-                dat = data;
-                document.getElementById("plotBtn").disabled = true;
-                graph.plot_data(data);
+              document.getElementById("plotBtn").disabled = true;
+              graph.plot_data(data);
             },
             error: function (result) {
             }
   });
-  // console.log("plot();");
 };
 
 
