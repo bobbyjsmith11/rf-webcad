@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Semilog X Plot</title>
+  <script type="text/javascript" src="https://d3js.org/d3.v2.js"></script>
+  
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.17.0/math.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="styles/splotr.css" />
+  <script type="text/javascript" src="scripts/semilogx.js"></script>
+  
+</head>
+<body>
+
+    <div id="chart1" class="chart" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragend="dragend_handler(event);"></div>
+    <script type="text/javascript">
+      graph = new SemilogXPlot("chart1", {
+          "xmax": 100e6, "xmin": 100,
+          "ymax": -50, "ymin": -160, 
+          "title": "Semilog X Plot",
+          "xlabel": "Offset Frequency",
+          "ylabel": "dB"  
+        });
+    </script>
+  </div>
+
+</body>
