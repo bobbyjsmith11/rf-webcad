@@ -33,12 +33,12 @@ path {
   position:relative;
 }
 
-.svg-content {
+/* .svg-content {
   display: inline-block;
   position: absolute;
   top: 0;
   left: 0;
-}
+} */  
 
 .svg-container {
   display: inline-block;
@@ -83,8 +83,6 @@ path {
     left: 0;
   }
 
-
-
 .plot-panel {
   display: inline-block;
   min-width: 850px;
@@ -109,14 +107,15 @@ th, td {
 #pllIcAttributes {
   float: left;
 }
+
   
-.pll-form-input {
+input.pll-form-input {
   width: 80px;
-  /* background:#00FF00;
-  /*border:2px solid black;*/
+  /* background:#00FF00; */
+  /* border:2px solid black;*/
 }
 
-.pll-component-input {
+input.pll-component-input {
   width: 90px;
   /* background:#00FF00;
   /* border:2px solid black;*/

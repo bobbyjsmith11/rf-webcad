@@ -3,17 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- link rel="stylesheet" type="text/css" href="styles/pll_designer.css" />
-  <link rel="stylesheet" type="text/css" href="styles/style.css" / -->
+  <link rel="stylesheet" type="text/css" href="styles/graph.css" />
+  <link rel="stylesheet" type="text/css" href="styles/pll_designer.css"/>
+  <!-- link rel="stylesheet" href="styles/index.css"/ -->
   <script type="text/javascript" src="https://d3js.org/d3.v2.js"></script>
   <script type="text/javascript" src="scripts/graphs.js"></script>
   <script type="text/javascript" src="scripts/pll_calcs.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.17.0/math.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="styles/graph.css">
-  <link rel="stylesheet" type="text/css" href="styles/pll_form.css">
-  <link rel="stylesheet" type="text/css" href="styles/pll_designer.css">
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
 </head>
 <body>
 
@@ -26,41 +32,39 @@
 <div class="container-fluid text-center">
   
   <div class="diagram-container" id="pll_blk_diag_div">
-    <img src="images/pll_blk_diag.svg"
-           width="100%">
-  </div>
+    <img src="images/pll_blk_diag.svg" width="100%"/>
 
 
-    <input type="string" class="form-control input-sm pll-form-input" id="fref" value="10 MHz"
-                            data-toggle="tooltip" title="reference frequency" onchange="onFrefChanged()">
+    <input type="string" class="pll-form-input form-control input-sm" id="fref" value="10 MHz"
+                            data-toggle="tooltip" title="reference frequency" onchange="onFrefChanged()"/>
 
     <input type="string" class="form-control input-sm pll-form-input" id="fout"
                                                                       value="2000 MHz"
-                            data-toggle="tooltip" title="output frequency" onchange="onFoutChanged()">
+                            data-toggle="tooltip" title="output frequency" onchange="onFoutChanged()"/>
 
     <input type="string" class="form-control input-sm pll-form-input" id="fpfd"
                                                                       value="10 MHz"
-                            data-toggle="tooltip" title="comparison frequency" onchange="onFpfdChanged()">
+                            data-toggle="tooltip" title="comparison frequency" onchange="onFpfdChanged()"/>
 
     <input type="number" class="form-control input-sm pll-form-input" id="divR"
                                                                       step="1"
                                                                       value=1
-                            data-toggle="tooltip" title="R divider" onchange="onRChanged()">
+                            data-toggle="tooltip" title="R divider" onchange="onRChanged()"/>
 
     <input type="number" class="form-control input-sm pll-form-input" id="divN"
                                                                       step="1"
                                                                       value=200
-                            data-toggle="tooltip" title="N divider" onchange="onNChanged()">
+                            data-toggle="tooltip" title="N divider" onchange="onNChanged()"/>
     
     <input type="string" class="form-control input-sm pll-form-input" id="kphi"
                                                                       value="5 mA"
-                            data-toggle="tooltip" title="charge pump current" onchange="onKphiChanged()">
+                            data-toggle="tooltip" title="charge pump current" onchange="onKphiChanged()"/>
 
     <input type="string" class="form-control input-sm pll-form-input" id="kvco" value="20 MHz"
-                            data-toggle="tooltip" title="tuning sensitivity (Hz/V)" onchange="onKvcoChanged()">
+                            data-toggle="tooltip" title="tuning sensitivity (Hz/V)" onchange="onKvcoChanged()"/>
 
     <label for="pllFom" id="fomLabel">PLL IC Figure-of-Merit:</label>
-    <input type="number" class="form-control input-sm pll-form-input" id="pllFom" value="-227" onchange="onFomChanged()">
+    <input type="number" class="form-control input-sm pll-form-input" id="pllFom" value="-227" onchange="onFomChanged()"/>
 
     <!--label for="pllFlicker" id="flickerLabel" >Pll Flicker:</label>
     <input type="string" class="form-control input-sm" id="pllFlicker"
