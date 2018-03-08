@@ -1230,4 +1230,4 @@ function updatePhaseNoise ( freq, refPn, vcoPn, icPn, comp, dur=500) {
       
     });
 
-}
+};

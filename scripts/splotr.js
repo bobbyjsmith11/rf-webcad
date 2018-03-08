@@ -1042,6 +1042,7 @@ function plot() {
             data: JSON.stringify(dat_json),
             crossDomain: true,
             success: function (data) {
+              dat = data;
               document.getElementById("plotBtn").disabled = true;
               graph.plot_data(data);
             },
