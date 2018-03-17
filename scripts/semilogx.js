@@ -185,6 +185,7 @@ function test() {
     graph.parse_data_dict(data_dict);  
     graph.reset_scale();
     graph.add_plot_lines();
+    graph.update();
     // my_parsed_dat = [];
     // for ( i=0; i<=data_dict.f.length-1; i++ ) {
     //   console.log(data_dict['f'[i]]);
@@ -205,6 +206,10 @@ function test_update() {
     graph.update();
 
 };
+
+function test_clear() {
+  graph.clear_plot();
+}
 
 SemilogXPlot.prototype.parse_data_dict = function( data_dict ) {
 
@@ -287,6 +292,19 @@ SemilogXPlot.prototype.reset_scale = function( ) {
   // self.redraw()();
 };
 
+SemilogXPlot.prototype.clear_plot = function() {
+  var self = this;
+  
+  // self.param = this.vis.selectAll(".param")
+  //   .data(self.params)
+  //   .enter().append("g")
+  //   .attr("class", "logMag");
+
+  self.param.select("path").remove();
+  self.param.select("rect").remove();
+  self.param.select("text").remove();
+
+}
 
 SemilogXPlot.prototype.add_plot_lines = function( ) {
   var self = this;
