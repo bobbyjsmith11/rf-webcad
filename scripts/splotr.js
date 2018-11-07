@@ -1024,10 +1024,13 @@ function test_ajax() {
 }
 
 function plot() {
+  console.log("plot()");
   var fid = document.getElementById("files");
   var fname = fid.files[0].name;
   var txt = document.getElementById("file_data");
   var fdata = txt.value;
+  console.log(fname);
+  console.log(fdata);
 
   var dat_json = {
                   "filedata": fdata,
@@ -1036,7 +1039,8 @@ function plot() {
 
   $.ajax( {
             type: "POST",
-            url: "https://glxl3qdmrk.execute-api.us-east-2.amazonaws.com/dev/getLogMag",
+            url: "https://glxl3qdmrk.execute-api.us-east-2.amazonaws.com/dev/getLogMag", // to deploy
+            // url: "http://127.0.0.1:3000/getLogMag", // for testing
             datatype: 'json',
             async: true,
             data: JSON.stringify(dat_json),

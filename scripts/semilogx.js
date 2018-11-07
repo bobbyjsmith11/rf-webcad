@@ -36,6 +36,7 @@ SemilogXPlot = function(elemid, options) {
         .nice();
 
     this.dataline = d3.svg.line()
+                    .interpolate("cardinal")
                     .x( function(d) { return this.x(d.f); } )  
                     .y( function(d) { return this.y(d.db); } );
 

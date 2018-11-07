@@ -1,0 +1,75 @@
+@charset "UTF-8";
+
+path {
+  stroke-width: 2;
+  fill: none;
+}
+
+  .axis path,
+    .axis line {
+      fill: none;
+      stroke: grey;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+    }
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.chart-title {
+  font-size: 1.5em;
+  /* font-weight: bold; */
+}
+
+.location-text {
+  font-size: 0.7em
+}
+
+#file_data{
+  position:relative;
+  height: 100%;
+  width: 100%;
+}
+
+
+rect { fill: #fff; }
+ul {
+  list-style-type: none;
+  margin: 0.5em 0em 0.5em 0em;
+  width: 100%; }
+  ul li {
+    display: table-cell;
+    vertical-align: middle;
+    margin: 0em;
+    padding: 0em 1em; }
+/* .axis { font-size: 1.5em; } */
+.chart {
+  display: inline-block;
+  /* background-color: #F7F2C5; */
+  background-color: #FFFFFF;
+  /* width: 640px;
+  height: 400px;*/ }
+circle, .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px; }
+circle {
+  fill: white;
+  fill-opacity: 0.2;
+  cursor: move; }
+  circle.selected {
+    fill: #ff7f0e;
+    stroke: #ff7f0e; }
+  circle:hover {
+    fill: #ff7f0e;
+    stroke: #707f0e; }
+  circle.selected:hover {
+    fill: #ff7f0e;
+    stroke: #ff7f0e; }

@@ -244,12 +244,30 @@ function graphReferencePhaseNoise() {
             contentType: "application/json",
             crossDomain: true,
             success: function (data) {
+              console.log("graphReferencePhaseNoise");
+              console.log(data);
+              data_dict = {};
+              data_dict['f'] = data.freqs;
+              data_dict['pn'] = data.pns;
               if (REF_PLOT_PRESENT) {
-                updateReferencePhaseNoise( data.pns, data.freqs );
+                refGraph.parse_data_dict(data_dict);  
+                refGraph.reset_scale();
+                refGraph.update();
               } else {
-                plotReferencePhaseNoise( data.pns, data.freqs );
+                refGraph.parse_data_dict(data_dict);  
+                refGraph.reset_scale();
+                refGraph.add_plot_lines();
+                refGraph.update();
                 REF_PLOT_PRESENT = true;  
               }
+              
+              // refGraph.up
+              // if (REF_PLOT_PRESENT) {
+              //   updateReferencePhaseNoise( data.pns, data.freqs );
+              // } else {
+              //   plotReferencePhaseNoise( data.pns, data.freqs );
+              //   REF_PLOT_PRESENT = true;  
+              // }
             },
             error: function (result) {
             }

@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="styles/graph.css" />
   <link rel="stylesheet" type="text/css" href="styles/pll_designer.css"/>
+  <link rel="stylesheet" type="text/css" href="styles/semilogx.css"/>
   <!-- link rel="stylesheet" href="styles/index.css"/ -->
   <script type="text/javascript" src="https://d3js.org/d3.v2.js"></script>
   <script type="text/javascript" src="scripts/graphs.js"></script>
   <script type="text/javascript" src="scripts/pll_calcs.js"></script>
+  <script type="text/javascript" src="scripts/semilogx.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.17.0/math.min.js"></script>
 
@@ -168,9 +170,9 @@
     <ul class="nav nav-tabs">
       <li ><a data-toggle="tab" href="#openLoopResponse">OPEN LOOP RESPONSE</a></li>
       <li class="hidden"><a data-toggle="tab" href="#closedLoopResponse">CLOSED LOOP RESPONSE</a></li>
-      <li ><a data-toggle="tab" href="#referencePn">REFERENCE PHASE NOISE</a></li>
+      <li class="active"><a data-toggle="tab" href="#referencePn">REFERENCE PHASE NOISE</a></li>
       <li ><a data-toggle="tab" href="#vcoPn">VCO PHASE NOISE</a></li>
-      <li class="active"><a data-toggle="tab" href="#totalPnPane">COMPOSITE PHASE NOISE</a></li>
+      <li ><a data-toggle="tab" href="#totalPnPane">COMPOSITE PHASE NOISE</a></li>
     </ul>
 
     
@@ -187,7 +189,7 @@
         </div>
       </div>
 
-      <div id="referencePn" class="tab-pane fade in">
+      <div id="referencePn" class="tab-pane fade in active">
 
         <table class="phase-noise-table" id="refPnTable">
           <tr>
@@ -219,8 +221,18 @@
             <td contenteditable="true">-165</td>
         </table>
 
-        <div id="refPnGraph" class="svg-container">
-        </div>
+    <div id="chart1" class="chart" style="width: 640px; height:500px;" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragend="dragend_handler(event);"></div>
+      <script type="text/javascript">
+        refGraph = new SemilogXPlot("chart1", {
+            "xmax": 100e6, "xmin": 100,
+            "ymax": -50, "ymin": -160, 
+            "title": "Semilog X Plot",
+            "xlabel": "Offset Frequency",
+            "ylabel": "dB"  
+          });
+      </script>
+        <!-- div id="refPnGraph" class="svg-container">
+        </div -->
 
       </div>
 
@@ -261,7 +273,7 @@
 
       </div>
 
-      <div id="totalPnPane" class="tab-pane fade in active">
+      <div id="totalPnPane" class="tab-pane fade in">
         <div id="pnGraph" class="svg-container" >
         </div>
 
