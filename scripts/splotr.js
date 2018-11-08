@@ -22,7 +22,14 @@ registerKeyboardHandler = function(callback) {
   d3.select(window).on("keydown", callback);  
 };
 
-LogMagPlot = function(elemid, options) {
+
+/**
+ * Represent a plot object with x in linear scale and 
+ * y in linear scale.
+ * 
+ * @constructor
+ */
+plotXlinYlin = function(elemid, options) {
   var self = this;
   this.chart = document.getElementById(elemid);
   this.cx = this.chart.clientWidth;
@@ -238,7 +245,7 @@ LogMagPlot = function(elemid, options) {
 
 };
 
-LogMagPlot.prototype.plot_drag = function() {
+plotXlinYlin.prototype.plot_drag = function() {
   var self = this;
   return function() {
     registerKeyboardHandler(self.keydown());
@@ -264,7 +271,7 @@ LogMagPlot.prototype.plot_drag = function() {
   }
 };
 
-LogMagPlot.prototype.clear_location = function() {
+plotXlinYlin.prototype.clear_location = function() {
   var self = this;
   return function() {
     self.vis.select("#locText")
@@ -273,7 +280,7 @@ LogMagPlot.prototype.clear_location = function() {
 };
 
 
-LogMagPlot.prototype.update_location = function() {
+plotXlinYlin.prototype.update_location = function() {
   var self = this;
   return function() {
     // console.log(d3.svg.mouse(self.vis[0][0]));
@@ -289,7 +296,7 @@ LogMagPlot.prototype.update_location = function() {
 };
 
 
-LogMagPlot.prototype.redraw = function() {
+plotXlinYlin.prototype.redraw = function() {
   var self = this;
   return function() {
     // var tx = function(d) { 
@@ -352,7 +359,18 @@ LogMagPlot.prototype.redraw = function() {
   }  
 }
 
-LogMagPlot.prototype.plot_data = function( data_dict ) {
+
+/**
+ * @desc plot data as lines on the chart
+ * @param {Object} data_dict
+ * @param {number} number_of_ports - number of ports  
+ * @param {number[]} data_dict.f - array of frequencies in Hz 
+ * @param {number[]} data_dict.s11db - dB value of s11 
+ * @param {number[]} data_dict.s12db - dB value of s12 
+ * @param {number[]} data_dict.s21db - dB value of s21 
+ * @param {number[]} data_dict.s22db - dB value of s22 
+ */
+plotXlinYlin.prototype.plot_data = function( data_dict ) {
 
   var self = this;
   self.parse_data_dict( data_dict );
@@ -364,7 +382,7 @@ LogMagPlot.prototype.plot_data = function( data_dict ) {
 };
 
 
-// LogMagPlot.prototype.update = function() {
+// plotXlinYlin.prototype.update = function() {
 //   var self = this;
 //   // var lines = this.vis.select("path").attr("d", this.line(this.points));
 //         
@@ -391,16 +409,30 @@ LogMagPlot.prototype.plot_data = function( data_dict ) {
 // };
 
 
-/*
- * parse the data_dict to the correct format
- * array of objects, each with keys
- *    f (float) frequency in Hz
- *    number_of_ports (int)
- *    s11dB
- *    s21dB
- *    ...
- * */
-LogMagPlot.prototype.parse_data_dict = function( data_dict ) {
+/**
+ * @desc parse the data dict to the correct format. Convert the
+ * data_dict, which is an Object with properties that are arrays of 
+ * values, to a list of Objects, where each item in the list 
+ * is a 
+ * @param {Object} data_dict
+ * @param {number} number_of_ports - number of ports  
+ * @param {number[]} data_dict.f - array of frequencies in Hz 
+ * @param {number[]} data_dict.s11db - dB value of s11 
+ * @param {number[]} data_dict.s12db - dB value of s12 
+ * @param {number[]} data_dict.s21db - dB value of s21 
+ * @param {number[]} data_dict.s22db - dB value of s22 
+ * 
+ * converts the obove object to 
+ * 
+ * @param {Object[]} - self.data
+ * @param {number} number_of_ports - number of ports  
+ * @param {number} f - frequency in Hz
+ * @param {number} s11db - dB value of s11 at f
+ * @param {number} s12db - dB value of s12 at f 
+ * @param {number} s21db - dB value of s21 at f 
+ * @param {number} s22db - dB value of s22 at f 
+ */
+plotXlinYlin.prototype.parse_data_dict = function( data_dict ) {
 
   var self = this;
   self.data_dict = data_dict;
@@ -414,7 +446,10 @@ LogMagPlot.prototype.parse_data_dict = function( data_dict ) {
   };
 };
 
-LogMagPlot.prototype.update = function() {
+
+
+
+plotXlinYlin.prototype.update = function() {
   // console.log("update");
   var self = this;
   
@@ -436,10 +471,10 @@ LogMagPlot.prototype.update = function() {
 };
 
 
-/*
- * add legend to plot
- * */
-LogMagPlot.prototype.add_plot_lines = function( ) {
+/**
+ * @desc add legend to plot
+ */
+plotXlinYlin.prototype.add_plot_lines = function( ) {
 
   var self = this;
 
@@ -619,7 +654,7 @@ LogMagPlot.prototype.add_plot_lines = function( ) {
 
 };
 
-LogMagPlot.prototype.toggle_trace = function( ) {
+plotXlinYlin.prototype.toggle_trace = function( ) {
   var self = this;
   return function( d ) {
     document.onselectstart = function() { return false; };
@@ -639,7 +674,7 @@ LogMagPlot.prototype.toggle_trace = function( ) {
   };
 };
 
-LogMagPlot.prototype.make_marker_static = function() {
+plotXlinYlin.prototype.make_marker_static = function() {
   var self = this;
   return function() {
     // console.log(d3.event.keyCode);
@@ -663,7 +698,7 @@ LogMagPlot.prototype.make_marker_static = function() {
 };
 
 
-LogMagPlot.prototype.add_marker = function( ) {
+plotXlinYlin.prototype.add_marker = function( ) {
   var self = this;
   return function(d) {
     
@@ -777,7 +812,7 @@ LogMagPlot.prototype.add_marker = function( ) {
   }
 };
 
-LogMagPlot.prototype.change_mode = function() {
+plotXlinYlin.prototype.change_mode = function() {
   var self = this;
   console.log("change_mode");
   return function() {
@@ -793,7 +828,7 @@ LogMagPlot.prototype.change_mode = function() {
  * Resets the scale to account for the maximum and minimum
  * data values for all collective parameters
  * */
-LogMagPlot.prototype.reset_scale = function( ) {
+plotXlinYlin.prototype.reset_scale = function( ) {
   var self = this;
   if (self.data_dict != null) { 
     // self.parse_data_dict( data_dict );
@@ -853,7 +888,7 @@ LogMagPlot.prototype.reset_scale = function( ) {
 };
 
 
-LogMagPlot.prototype.mousemove = function() {
+plotXlinYlin.prototype.mousemove = function() {
   var self = this;
   return function() {
     // console.log("mousemove");
@@ -910,7 +945,7 @@ LogMagPlot.prototype.mousemove = function() {
   }
 };
 
-LogMagPlot.prototype.xaxis_drag = function() {
+plotXlinYlin.prototype.xaxis_drag = function() {
   var self = this;
   return function(d) {
     // set this flag
@@ -925,7 +960,7 @@ LogMagPlot.prototype.xaxis_drag = function() {
   }
 };
 
-LogMagPlot.prototype.yaxis_drag = function(d) {
+plotXlinYlin.prototype.yaxis_drag = function(d) {
   var self = this;
   return function(d) {
     // set this flag
@@ -950,8 +985,9 @@ LogMagPlot.prototype.yaxis_drag = function(d) {
 // };
 
 
-
-LogMagPlot.prototype.mouseup = function() {
+/** @description detect a mouseup event and take appropriate action
+ */
+plotXlinYlin.prototype.mouseup = function() {
   var self = this;
   return function() {
     // console.log("mouseup");
@@ -976,8 +1012,8 @@ LogMagPlot.prototype.mouseup = function() {
   }
 }
 
-
-LogMagPlot.prototype.keydown = function() {
+/** @description detect a keydown while in the graph area and take appropriate action */
+plotXlinYlin.prototype.keydown = function() {
   var self = this;
   return function() {
     if (!self.selected) return;
@@ -1023,14 +1059,15 @@ function test_ajax() {
   // console.log("plot();");
 }
 
+/** @description send the file data and filename to the lambda function. If successfuly receive
+ * json data from the lambda, call plotXlinYlin.plot_data
+ * 
+ */
 function plot() {
-  console.log("plot()");
   var fid = document.getElementById("files");
   var fname = fid.files[0].name;
   var txt = document.getElementById("file_data");
   var fdata = txt.value;
-  console.log(fname);
-  console.log(fdata);
 
   var dat_json = {
                   "filedata": fdata,
