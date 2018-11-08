@@ -1,26 +1,26 @@
-$(document).on("keydown", function (e) {
-  // if e.keycode == 36
-  myevent = e;
-  // console.log(e.keyCode);
-  switch (e.keyCode) {
-    case 8: // backspace
-      console.log("backspace");
-    case 46: { // delete
-      console.log("delete");
-    }
-    case 36: {// home
-      // console.log("home");
-      graph.reset_scale();
-    }
-  }
-});
-
-
-registerKeyboardHandler = function(callback) {
-  console.log("keydown");
-  var callback = callback;
-  d3.select(window).on("keydown", callback);  
-};
+// $(document).on("keydown", function (e) {
+//   // if e.keycode == 36
+//   myevent = e;
+//   // console.log(e.keyCode);
+//   switch (e.keyCode) {
+//     case 8: // backspace
+//       console.log("backspace");
+//     case 46: { // delete
+//       console.log("delete");
+//     }
+//     case 36: {// home
+//       console.log("home");
+//       // graph.reset_scale();
+//     }
+//   }
+// });
+// 
+// 
+// registerKeyboardHandler = function(callback) {
+//   console.log("keydown");
+//   var callback = callback;
+//   d3.select(window).on("keydown", callback);  
+// };
 
 
 /**
@@ -114,13 +114,6 @@ plotXlinYlin = function(elemid, options) {
     .style("stroke", function(d) {
       return this.color(d.name);
     });
-
-  // ///   EXPERIMENTAL 
-  // this.param = this.vis.selectAll(".param")
-  //   .data(this.params)
-  //   .enter().append("g")
-  //   .attr("class", "logMag");
-  // /// 
  
   this.vis.append("text")
     .attr("class", "location-text")
@@ -240,15 +233,68 @@ plotXlinYlin = function(elemid, options) {
       .on("touchmove.drag", self.mousemove())
       .on("mouseup.drag",   self.mouseup())
       .on("touchend.drag",  self.mouseup());
+      // .on("keydown", function() { console.log("detected keydown")});
 
   this.redraw()();
 
 };
 
+plotXlinYlin.prototype = {
+  
+  /**
+   * @desc plot data as lines on the chart
+   * @param {Object} data_dict
+   * @param {number} number_of_ports - number of ports  
+   * @param {number[]} data_dict.f - array of frequencies in Hz 
+   * @param {number[]} data_dict.s11db - dB value of s11 
+   * @param {number[]} data_dict.s12db - dB value of s12 
+   * @param {number[]} data_dict.s21db - dB value of s21 
+   * @param {number[]} data_dict.s22db - dB value of s22 
+   */
+  plot_data: function(data_dict) {
+    var self = this;
+    self.parse_data_dict( data_dict );
+    self.reset_scale();
+    self.add_plot_lines();
+    // self.update();
+
+  },
+
+};
+
+// /** @description detect a keydown while in the graph area and take appropriate action 
+//  * CURRENTLY THIS FUNCTION DOESN'T SEEM TO DETECT KEY PRESSES
+// */
+// plotXlinYlin.prototype.keydown = function() {
+//   var self = this;
+//   return function() {
+//     if (!self.selected) return;
+//     switch (d3.event.keyCode) {
+//       case 8: {// backspace
+//         console.log("backspace");
+//       }
+//       case 46: { // delete
+//         console.log("delete");
+//       }
+//        case 36: {// home
+//          // console.log("home");
+//          self.reset_scale();
+//        }
+//         // var i = self.points.indexOf(self.selected);
+//         // self.points.splice(i, 1);
+//         // self.selected = self.points.length ? self.points[i > 0 ? i - 1 : 0] : null;
+//         // self.update();
+//         // break;
+//     }
+//   }
+// };
+
 plotXlinYlin.prototype.plot_drag = function() {
   var self = this;
+  console.log("drag()");
+
   return function() {
-    registerKeyboardHandler(self.keydown());
+    // registerKeyboardHandler(self.keydown());
     d3.select('body').style("cursor", "move");
   
     if (d3.event.altKey) {
@@ -370,17 +416,6 @@ plotXlinYlin.prototype.redraw = function() {
  * @param {number[]} data_dict.s21db - dB value of s21 
  * @param {number[]} data_dict.s22db - dB value of s22 
  */
-plotXlinYlin.prototype.plot_data = function( data_dict ) {
-
-  var self = this;
-  self.parse_data_dict( data_dict );
-  // self.reset_scale( data_dict=data_dict );
-  self.reset_scale();
-  self.add_plot_lines();
-  // self.update();
-
-};
-
 
 // plotXlinYlin.prototype.update = function() {
 //   var self = this;
@@ -817,7 +852,7 @@ plotXlinYlin.prototype.change_mode = function() {
   console.log("change_mode");
   return function() {
     console.log("change_mode");
-    registerKeyboardHandler(self.keydown());
+    // registerKeyboardHandler(self.keydown());
     console.log(d3.event.keyCode);
     // switch (d3.event.keyCode) {
     //   case 8: // backspace
@@ -891,7 +926,7 @@ plotXlinYlin.prototype.reset_scale = function( ) {
 plotXlinYlin.prototype.mousemove = function() {
   var self = this;
   return function() {
-    // console.log("mousemove");
+    console.log("mousemove");
     var p = d3.svg.mouse(self.vis[0][0]),
         t = d3.event.changedTouches;
     
@@ -990,7 +1025,7 @@ plotXlinYlin.prototype.yaxis_drag = function(d) {
 plotXlinYlin.prototype.mouseup = function() {
   var self = this;
   return function() {
-    // console.log("mouseup");
+    console.log("mouseup");
     document.onselectstart = function() { return true; };
     d3.select('body').style("cursor", "auto");
     d3.select('body').style("cursor", "auto");
@@ -1010,32 +1045,8 @@ plotXlinYlin.prototype.mouseup = function() {
       self.dragged = null 
     }
   }
-}
-
-/** @description detect a keydown while in the graph area and take appropriate action */
-plotXlinYlin.prototype.keydown = function() {
-  var self = this;
-  return function() {
-    if (!self.selected) return;
-    switch (d3.event.keyCode) {
-      case 8: {// backspace
-        console.log("backspace");
-      }
-      case 46: { // delete
-        console.log("delete");
-      }
-      // case 36: {// home
-      //   // console.log("home");
-      //   self.reset_scale();
-      // }
-        // var i = self.points.indexOf(self.selected);
-        // self.points.splice(i, 1);
-        // self.selected = self.points.length ? self.points[i > 0 ? i - 1 : 0] : null;
-        // self.update();
-        // break;
-    }
-  }
 };
+
 
 function test_ajax() {
   my_url = "/splotr/test_ajax?"
