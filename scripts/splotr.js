@@ -1,26 +1,26 @@
-// $(document).on("keydown", function (e) {
-//   // if e.keycode == 36
-//   myevent = e;
-//   // console.log(e.keyCode);
-//   switch (e.keyCode) {
-//     case 8: // backspace
-//       console.log("backspace");
-//     case 46: { // delete
-//       console.log("delete");
-//     }
-//     case 36: {// home
-//       console.log("home");
-//       // graph.reset_scale();
-//     }
-//   }
-// });
-// 
-// 
-// registerKeyboardHandler = function(callback) {
-//   console.log("keydown");
-//   var callback = callback;
-//   d3.select(window).on("keydown", callback);  
-// };
+$(document).on("keydown", function (e) {
+  // if e.keycode == 36
+  myevent = e;
+  // console.log(e.keyCode);
+  switch (e.keyCode) {
+    case 8: // backspace
+      console.log("backspace");
+    case 46: { // delete
+      console.log("delete");
+    }
+    case 36: {// home
+      console.log("home");
+      graph.reset_scale();
+    }
+  }
+});
+
+
+registerKeyboardHandler = function(callback) {
+  console.log("keydown");
+  var callback = callback;
+  d3.select(window).on("keydown", callback);  
+};
 
 
 /**
@@ -134,6 +134,10 @@ plotXlinYlin = function(elemid, options) {
       .on("touchstart.drag", self.plot_drag())
       this.plot.call(d3.behavior.zoom().x(this.x).y(this.y).on("zoom", this.redraw()));
 
+  // d3.select("body")
+  // // d3.select(this.plot)
+  //     .on("keydown", function() { console.log("detected keydown")})
+
   this.vis.append("clipPath")
          .attr("id","rect-clip")
          .append("rect")
@@ -229,13 +233,17 @@ plotXlinYlin = function(elemid, options) {
   }
 
   d3.select(this.chart)
-      .on("mousemove.drag", self.mousemove())
-      .on("touchmove.drag", self.mousemove())
-      .on("mouseup.drag",   self.mouseup())
-      .on("touchend.drag",  self.mouseup());
-      // .on("keydown", function() { console.log("detected keydown")});
+    .on("mousemove.drag", self.mousemove())
+    .on("touchmove.drag", self.mousemove())
+    .on("mouseup.drag",   self.mouseup())
+    .on("touchend.drag",  self.mouseup());
+    // .on("keydown", function() { console.log("detected keydown")});
 
-  this.redraw()();
+  // d3.select('body').call(d3.keybinding()
+  //   .on("keydown", function() { console.log("detected keydown")}));
+
+  
+   this.redraw()();
 
 };
 
@@ -259,6 +267,126 @@ plotXlinYlin.prototype = {
     // self.update();
 
   },
+
+/** @description adds a marker to the line with a vertical line as a mouse guide
+ * in the x axis.
+ */
+add_marker : function( ) {
+  var self = this;
+  return function(d) {
+    my_param = self.param.select("#" + d.name + "-path");
+   
+    // find the index within self.param which is not null
+    // this is the line that we want to add the marker
+    // var i = my_param[0].findIndex( 
+    var i = my_param[0].findIndex( 
+      function(el) { 
+        return (el !== null);
+      }
+    );
+    line = my_param[0][i]; 
+
+  //
+  //  mouse line section
+  //
+    mouseG = self.vis.append("g")
+      .attr("class", "mouse-over-effects");
+
+    mouseG.append("path") // this is the black vertical line to follow mouse
+      .attr("class", "mouse-line")
+      .style("stroke", "black")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+      
+
+    var mousePerLine = mouseG.selectAll('.mouse-per-line')
+      .data(self.params)
+      .enter()
+      .append("g")
+      .attr("class", "mouse-per-line");
+
+    mousePerLine.append("circle")
+      .attr("r", 5)
+      .style("stroke", function(d) {
+        return self.color(d.name);
+      })
+      .style("fill", "none")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+
+    mousePerLine.append("text")
+      .attr("transform", "translate(10,3)");
+
+    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+      .attr("class", "overlay")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr('width', self.size.width) // can't catch mouse events on a g element
+      .attr('height', self.size.height)
+      // .on("keydown", self.make_marker_static() )
+      .on("click", self.make_marker_static() )
+      // .on("keydown", self.change_mode())
+      .on('mouseout', function() { // on mouse out hide line, circles and text
+        d3.select(".mouse-line")
+          .style("opacity", "0");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "0");
+        d3.selectAll(".mouse-per-line text")
+          .style("opacity", "0");
+      })
+      .on('mouseover', function() { // on mouse in show line, circles and text
+        console.log("mouseover within line");
+        d3.select(".mouse-line")
+          .style("opacity", "1");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "1");
+        d3.selectAll(".mouse-per-line text")
+          .style("opacity", "1");
+      })
+      .on('mousemove', function() { // mouse moving over canvas
+        var mouse = d3.mouse(this);
+        d3.select(".mouse-line")
+          .attr("d", function() {
+            var d = "M" + mouse[0] + "," + self.size.height;
+            d += " " + mouse[0] + "," + 0;
+            return d;
+          });
+
+        d3.selectAll(".mouse-per-line")
+          .attr("transform", function(d, i) {
+            var xFreq = self.x.invert(mouse[0]),
+                bisect = d3.bisector(function(d) { return d.f; }).right;
+                idx = bisect(d.values, xFreq);
+           
+
+            var beginning = 0,
+                // end = self.lines[i][0].getTotalLength(), // adds to all lines
+                end = line.getTotalLength(),
+                target = null;
+        
+            while (true){
+              target = Math.floor((beginning + end) / 2);
+              // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
+              pos = line.getPointAtLength(target);
+              if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                  break;
+              }
+              if (pos.x > mouse[0])      end = target;
+              else if (pos.x < mouse[0]) beginning = target;
+              else break; //position found
+            }
+            
+            d3.select(this).select('text')
+              // .text(self.y.invert(pos.y).toFixed(2));
+              .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
+              
+            return "translate(" + mouse[0] + "," + pos.y +")";
+        });
+      
+      });
+  
+  }
+}
 
 };
 
@@ -294,7 +422,7 @@ plotXlinYlin.prototype.plot_drag = function() {
   console.log("drag()");
 
   return function() {
-    // registerKeyboardHandler(self.keydown());
+    registerKeyboardHandler(self.keydown());
     d3.select('body').style("cursor", "move");
   
     if (d3.event.altKey) {
@@ -518,7 +646,12 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
   }));
  
   // self.params.enter().data(self.data);
-
+  
+  // self.params is an array of Objects which is the data passed to self.param
+  //    Each object within has the following self.param is a data map
+  //          f is th frequency in Hz
+  //          logMag is the magnitude in dB
+  //  
   self.params = self.color.domain().map(function(name) {
     return {
       name: name,
@@ -531,6 +664,7 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     };
   });
 
+  
   self.param = this.vis.selectAll(".param")
     .data(self.params)
     .enter().append("g")
@@ -606,7 +740,7 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
   //   .style("opacity", "0");
   //   
   // // self.lines = document.getElementsByClassName('data-line');
-  // self.lines = graph.param.selectAll("path");
+  self.lines = graph.param.selectAll("path");
 
   // var mousePerLine = mouseG.selectAll('.mouse-per-line')
   //   .data(self.params)
@@ -733,126 +867,13 @@ plotXlinYlin.prototype.make_marker_static = function() {
 };
 
 
-plotXlinYlin.prototype.add_marker = function( ) {
-  var self = this;
-  return function(d) {
-    
-    my_param = self.param.select("#" + d.name + "-path");
-    line = my_param[0][0]; 
-    
-    // self.param = this.vis.selectAll(".param")
-    //   .data(self.params)
-    //   .enter().append("g")
-    //   .attr("class", "logMag");
-  
-    thisLine = d3.select(this); // line is an Array, line[0] is a path
-
-  //
-  //  mouse line section
-  //
-    mouseG = self.vis.append("g")
-      .attr("class", "mouse-over-effects");
-
-    mouseG.append("path") // this is the black vertical line to follow mouse
-      .attr("class", "mouse-line")
-      .style("stroke", "black")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
-      
-    // line = d3.select(this)[0][0];
-
-    var mousePerLine = mouseG.selectAll('.mouse-per-line')
-      .data(self.params)
-      .enter()
-      .append("g")
-      .attr("class", "mouse-per-line");
-
-    mousePerLine.append("circle")
-      .attr("r", 5)
-      .style("stroke", function(d) {
-        return self.color(d.name);
-      })
-      .style("fill", "none")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
-
-    mousePerLine.append("text")
-      .attr("transform", "translate(10,3)");
-
-    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-      .attr("class", "overlay")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr('width', self.size.width) // can't catch mouse events on a g element
-      .attr('height', self.size.height)
-      // .on("keydown", self.make_marker_static() )
-      .on("click", self.make_marker_static() )
-      // .on("keydown", self.change_mode())
-      .on('mouseout', function() { // on mouse out hide line, circles and text
-        d3.select(".mouse-line")
-          .style("opacity", "0");
-        d3.selectAll(".mouse-per-line circle")
-          .style("opacity", "0");
-        d3.selectAll(".mouse-per-line text")
-          .style("opacity", "0");
-      })
-      .on('mouseover', function() { // on mouse in show line, circles and text
-        d3.select(".mouse-line")
-          .style("opacity", "1");
-        d3.selectAll(".mouse-per-line circle")
-          .style("opacity", "1");
-        d3.selectAll(".mouse-per-line text")
-          .style("opacity", "1");
-      })
-      .on('mousemove', function() { // mouse moving over canvas
-        var mouse = d3.mouse(this);
-        d3.select(".mouse-line")
-          .attr("d", function() {
-            var d = "M" + mouse[0] + "," + self.size.height;
-            d += " " + mouse[0] + "," + 0;
-            return d;
-          });
-
-        d3.selectAll(".mouse-per-line")
-          .attr("transform", function(d, i) {
-            var xFreq = self.x.invert(mouse[0]),
-                bisect = d3.bisector(function(d) { return d.f; }).right;
-                idx = bisect(d.values, xFreq);
-            
-            var beginning = 0,
-                // end = self.lines[i].getTotalLength(),
-                end = line.getTotalLength(),
-                target = null;
-
-            while (true){
-              target = Math.floor((beginning + end) / 2);
-              // pos = self.lines[i].getPointAtLength(target);
-              pos = line.getPointAtLength(target);
-              if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-                  break;
-              }
-              if (pos.x > mouse[0])      end = target;
-              else if (pos.x < mouse[0]) beginning = target;
-              else break; //position found
-            }
-            
-            d3.select(this).select('text')
-              .text(self.y.invert(pos.y).toFixed(2));
-              // .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
-              
-            return "translate(" + mouse[0] + "," + pos.y +")";
-        });
-      });
-  
-  }
-};
 
 plotXlinYlin.prototype.change_mode = function() {
   var self = this;
   console.log("change_mode");
   return function() {
     console.log("change_mode");
-    // registerKeyboardHandler(self.keydown());
+    registerKeyboardHandler(self.keydown());
     console.log(d3.event.keyCode);
     // switch (d3.event.keyCode) {
     //   case 8: // backspace
