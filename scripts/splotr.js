@@ -268,125 +268,267 @@ plotXlinYlin.prototype = {
 
   },
 
-/** @description adds a marker to the line with a vertical line as a mouse guide
- * in the x axis.
- */
-add_marker : function( ) {
-  var self = this;
-  return function(d) {
-    my_param = self.param.select("#" + d.name + "-path");
-   
-    // find the index within self.param which is not null
-    // this is the line that we want to add the marker
-    // var i = my_param[0].findIndex( 
-    var i = my_param[0].findIndex( 
-      function(el) { 
-        return (el !== null);
-      }
-    );
-    line = my_param[0][i]; 
+   /** @description Resets the scale to account for the maximum and minimum
+   * data values for all collective parameters
+   * */
+  reset_scale : function( ) {
+    var self = this;
+    if (self.data_dict != null) { 
+      // self.parse_data_dict( data_dict );
+      var fstart = self.data[0].f;
+      var fstop = self.data[self.data.length - 1].f;
 
-  //
-  //  mouse line section
-  //
-    mouseG = self.vis.append("g")
-      .attr("class", "mouse-over-effects");
+      var max_ar = [];
+      var min_ar = [];
 
-    mouseG.append("path") // this is the black vertical line to follow mouse
-      .attr("class", "mouse-line")
-      .style("stroke", "black")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
-      
+      for (var propt in self.data[0]) {
+        if (propt != "f" && propt != "number_of_ports"){
+          max_ar.push( math.max.apply(math,self.data.map( function(o){return o[propt]})) );
+          min_ar.push( math.min.apply(math,self.data.map( function(o){return o[propt]})) );
+        };
+      };
 
-    var mousePerLine = mouseG.selectAll('.mouse-per-line')
-      .data(self.params)
-      .enter()
-      .append("g")
-      .attr("class", "mouse-per-line");
+      var max_y = math.max(max_ar);
+      var min_y = math.min(min_ar);
+      max_y = math.ceil(max_y/10)*10;
+      min_y = math.floor(min_y/10)*10;
+    } else {
+      // console.log("data_dict = null");
+      var fstart = self.options.xmin
+      var fstop = self.options.xmax
+      var min_y = self.options.ymin
+      var max_y = self.options.ymax
+    };
 
-    mousePerLine.append("circle")
-      .attr("r", 5)
+    // remember, the y scale is inverted, so max_y comes before min_y 
+    self.y.domain([max_y,min_y]);
+
+    self.x.domain([fstart, fstop]);
+
+    self.vis.select(".x.axis")
+      .transition()
+      .duration(500)
+      .call(self.xAxis);
+
+    self.vis.select(".y.axis")
+      .transition()
+      .duration(500)
+      .call(self.yAxis);
+  
+    self.param.selectAll("path")
+      .attr("class", "line")
+      .transition()
+      .duration(500)
+      .attr("d", function(d) {
+        return self.logLine(d.values);
+      })
       .style("stroke", function(d) {
         return self.color(d.name);
-      })
-      .style("fill", "none")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
-
-    mousePerLine.append("text")
-      .attr("transform", "translate(10,3)");
-
-    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-      .attr("class", "overlay")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr('width', self.size.width) // can't catch mouse events on a g element
-      .attr('height', self.size.height)
-      // .on("keydown", self.make_marker_static() )
-      .on("click", self.make_marker_static() )
-      // .on("keydown", self.change_mode())
-      .on('mouseout', function() { // on mouse out hide line, circles and text
-        d3.select(".mouse-line")
-          .style("opacity", "0");
-        d3.selectAll(".mouse-per-line circle")
-          .style("opacity", "0");
-        d3.selectAll(".mouse-per-line text")
-          .style("opacity", "0");
-      })
-      .on('mouseover', function() { // on mouse in show line, circles and text
-        console.log("mouseover within line");
-        d3.select(".mouse-line")
-          .style("opacity", "1");
-        d3.selectAll(".mouse-per-line circle")
-          .style("opacity", "1");
-        d3.selectAll(".mouse-per-line text")
-          .style("opacity", "1");
-      })
-      .on('mousemove', function() { // mouse moving over canvas
-        var mouse = d3.mouse(this);
-        d3.select(".mouse-line")
-          .attr("d", function() {
-            var d = "M" + mouse[0] + "," + self.size.height;
-            d += " " + mouse[0] + "," + 0;
-            return d;
-          });
-
-        d3.selectAll(".mouse-per-line")
-          .attr("transform", function(d, i) {
-            var xFreq = self.x.invert(mouse[0]),
-                bisect = d3.bisector(function(d) { return d.f; }).right;
-                idx = bisect(d.values, xFreq);
-           
-
-            var beginning = 0,
-                // end = self.lines[i][0].getTotalLength(), // adds to all lines
-                end = line.getTotalLength(),
-                target = null;
-        
-            while (true){
-              target = Math.floor((beginning + end) / 2);
-              // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
-              pos = line.getPointAtLength(target);
-              if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-                  break;
-              }
-              if (pos.x > mouse[0])      end = target;
-              else if (pos.x < mouse[0]) beginning = target;
-              else break; //position found
-            }
-            
-            d3.select(this).select('text')
-              // .text(self.y.invert(pos.y).toFixed(2));
-              .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
-              
-            return "translate(" + mouse[0] + "," + pos.y +")";
-        });
-      
       });
-  
+
+    
+    self.redraw()();
+  },
+
+  /** @description adds a marker to the line with a vertical line as a mouse guide
+   * in the x axis.
+   */
+  add_marker : function( ) {
+    var self = this;
+    return function(d) {
+      my_param = self.param.select("#" + d.name + "-path");
+    
+      // find the index within self.param which is not null
+      // this is the line that we want to add the marker
+      // var i = my_param[0].findIndex( 
+      var i = my_param[0].findIndex( 
+        function(el) { 
+          return (el !== null);
+        }
+      );
+      line = my_param[0][i]; 
+
+    //
+    //  mouse line section
+    //
+      var mouseG = self.vis.append("g")
+        .attr("class", "mouse-over-effects");
+
+
+      mouseG.append("path") // this is the black vertical line to follow mouse
+        .attr("class", "mouse-line")
+        .style("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
+
+      var mousePerLine = mouseG.selectAll('.mouse-per-line')
+        .data(self.params)
+        .enter()
+        .append("g")
+        .attr("class", "mouse-per-line");
+      
+      // self.param.select("#" + d.name + "-path").style("fill-opacity", "0.1");
+      
+      mousePerLine.append("circle")
+        .attr("r", 5)
+        .style("stroke", function(d) {
+          return self.color(d.name);
+        })
+        .style("fill", "none")
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
+
+      mousePerLine.append("text")
+        .attr("transform", "translate(10,3)");
+
+      
+      mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+        .attr("class", "overlay")
+        .attr("id", d.name + "-markerOverlay")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr('width', self.size.width) // can't catch mouse events on a g element
+        .attr('height', self.size.height)
+        // .on("click",  self.make_marker_static() )
+        .on('click', function() { // on click, hide line, freeze marker and remove this rect
+          console.log("freeze me");
+          d3.select(".mouse-line")
+            .style("opacity", "0");
+          // d3.selectAll(".mouse-per-line circle")
+          //   .style("opacity", "0");
+          // d3.selectAll(".mouse-per-line text")
+          //   .style("opacity", "0");
+          d3.select("#" + d.name + "-markerOverlay").
+            remove();
+        })
+        // .on("keydown", self.change_mode())
+        .on('mouseout', function() { // on mouse out hide line, circles and text
+          d3.select(".mouse-line")
+            .style("opacity", "0");
+          d3.selectAll(".mouse-per-line circle")
+            .style("opacity", "0");
+          d3.selectAll(".mouse-per-line text")
+            .style("opacity", "0");
+        })
+        .on('mouseover', function() { // on mouse in show line, circles and text
+          console.log("mouseover within line");
+          d3.select(".mouse-line")
+            .style("opacity", "1");
+          d3.selectAll(".mouse-per-line circle")
+            .style("opacity", "1");
+          d3.selectAll(".mouse-per-line text")
+            .style("opacity", "1");
+        })
+        .on("mousemove", function(d) { self.move_marker()(this) });
+        // .on('mousemove', function() { // mouse moving over canvas
+        //   mouse = d3.mouse(this);
+        //   mythis = this;
+        //   d3.select(".mouse-line")
+        //     .attr("d", function() {
+        //       var d = "M" + mouse[0] + "," + self.size.height;
+        //       d += " " + mouse[0] + "," + 0;
+        //       return d;
+        //     });
+
+        //   d3.selectAll(".mouse-per-line")
+        //     .attr("transform", function(d, i) {
+        //       var xFreq = self.x.invert(mouse[0]),
+        //           bisect = d3.bisector(function(d) { return d.f; }).right;
+        //           idx = bisect(d.values, xFreq);
+
+        //       var beginning = 0,
+        //           // end = self.lines[i][0].getTotalLength(), // adds to all lines
+        //           end = line.getTotalLength(),
+        //           target = null;
+        //     
+        //       while (true){
+        //         target = Math.floor((beginning + end) / 2);
+        //         // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
+        //         pos = line.getPointAtLength(target);
+        //         if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+        //             break;
+        //         }
+        //         if (pos.x > mouse[0])      end = target;
+        //         else if (pos.x < mouse[0]) beginning = target;
+        //         else break; //position found
+        //       }
+
+        //       d3.select(this).select('text')
+        //         // .text(self.y.invert(pos.y).toFixed(2));
+        //         .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
+
+        //       return "translate(" + mouse[0] + "," + pos.y +")";
+        //   });
+        
+        // });
+      }
+  },
+
+  /** @description move the marker to the current location of the mouse
+   * @param {d3.rect} mythis - rectangle for catching mouse movements
+   */
+  move_marker : function ( ) {
+    var self = this;
+    return function( mythis ) {
+      var mouse = d3.mouse(mythis);
+      d3.select(".mouse-line")
+        .attr("d", function() {
+          var d = "M" + mouse[0] + "," + self.size.height;
+          d += " " + mouse[0] + "," + 0;
+          return d;
+        });
+
+      d3.selectAll(".mouse-per-line")
+        .attr("transform", function(d, i) {
+          var xFreq = self.x.invert(mouse[0]),
+              bisect = d3.bisector(function(d) { return d.f; }).right;
+              idx = bisect(d.values, xFreq);
+
+          var beginning = 0,
+              // end = self.lines[i][0].getTotalLength(), // adds to all lines
+              end = line.getTotalLength(),
+              target = null;
+        
+          while (true){
+            target = Math.floor((beginning + end) / 2);
+            // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
+            pos = line.getPointAtLength(target);
+            if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                break;
+            }
+            if (pos.x > mouse[0])      end = target;
+            else if (pos.x < mouse[0]) beginning = target;
+            else break; //position found
+          }
+
+          d3.select(this).select('text')
+            // .text(self.y.invert(pos.y).toFixed(2));
+            .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
+
+          return "translate(" + mouse[0] + "," + pos.y +")";
+      });
+    }
+  },
+
+  toggle_trace : function( ) {
+    var self = this;
+    return function( d ) {
+      document.onselectstart = function() { return false; };
+      var active = self.param.select("#" + d.name + "-path").attr("active");
+      if (active == "true") {
+        active = false
+        self.param.select("#" + d.name + "-rect").style("fill-opacity", "0.1");
+        self.param.select("#" + d.name + "-text").style("fill-opacity", "0.5");
+        self.param.select("#" + d.name + "-path").style("opacity", "0");
+      } else {
+        self.param.select("#" + d.name + "-rect").style("fill-opacity", "1");
+        self.param.select("#" + d.name + "-text").style("fill-opacity", "5");
+        self.param.select("#" + d.name + "-path").style("opacity", "1");
+        active = true 
+      }
+      self.param.select("#" + d.name + "-path").attr("active", active);
+    };
   }
-}
 
 };
 
@@ -644,8 +786,6 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
   self.color.domain(d3.keys(self.data[0]).filter(function(key) {
     return key !== "f" && key !== "number_of_ports";
   }));
- 
-  // self.params.enter().data(self.data);
   
   // self.params is an array of Objects which is the data passed to self.param
   //    Each object within has the following self.param is a data map
@@ -701,21 +841,6 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     .on("mouseover", function(d) { d3.select(this).attr("width", 12).attr("height",12);})
     .on("mouseout", function(d) { d3.select(this).attr("width", 10).attr("height",10);})
     .on("click", function(d) { self.toggle_trace()(d) });
-    // .on("click", function(d) {
-    //   var active = self.param.select("#" + d.name + "-path").attr("active");
-    //   if (active == "true") {
-    //     active = false
-    //     self.param.select("#" + d.name + "-rect").style("fill-opacity", "0.1");
-    //     self.param.select("#" + d.name + "-text").style("fill-opacity", "0.5");
-    //     self.param.select("#" + d.name + "-path").style("opacity", "0");
-    //   } else {
-    //     self.param.select("#" + d.name + "-rect").style("fill-opacity", "1");
-    //     self.param.select("#" + d.name + "-text").style("fill-opacity", "5");
-    //     self.param.select("#" + d.name + "-path").style("opacity", "1");
-    //     active = true 
-    //   }
-    //   self.param.select("#" + d.name + "-path").attr("active", active);
-    // });
 
   self.param.append("text")
     .attr("id", function(d) { return d.name + "-text"; })
@@ -726,130 +851,25 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     .text(function(d) {
       return d.name;
     });
- 
-  //
-  //  mouse line section
-  //
-  // mouseG = self.vis.append("g")
-  //   .attr("class", "mouse-over-effects");
+  
+    self.lines = graph.param.selectAll("path");
 
-  // mouseG.append("path") // this is the black vertical line to follow mouse
-  //   .attr("class", "mouse-line")
-  //   .style("stroke", "black")
-  //   .style("stroke-width", "1px")
-  //   .style("opacity", "0");
-  //   
-  // // self.lines = document.getElementsByClassName('data-line');
-  self.lines = graph.param.selectAll("path");
 
-  // var mousePerLine = mouseG.selectAll('.mouse-per-line')
-  //   .data(self.params)
-  //   .enter()
-  //   .append("g")
-  //   .attr("class", "mouse-per-line");
-
-  // mousePerLine.append("circle")
-  //   .attr("r", 5)
-  //   .style("stroke", function(d) {
-  //     return self.color(d.name);
-  //   })
-  //   .style("fill", "none")
-  //   .style("stroke-width", "1px")
-  //   .style("opacity", "0");
-
-  // mousePerLine.append("text")
-  //   .attr("transform", "translate(10,3)");
-
-  // mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-  //   .attr("class", "overlay")
-  //   .attr("x", 0)
-  //   .attr("y", 0)
-  //   .attr('width', self.size.width) // can't catch mouse events on a g element
-  //   .attr('height', self.size.height)
-  //   .on('mouseout', function() { // on mouse out hide line, circles and text
-  //     d3.select(".mouse-line")
-  //       .style("opacity", "0");
-  //     d3.selectAll(".mouse-per-line circle")
-  //       .style("opacity", "0");
-  //     d3.selectAll(".mouse-per-line text")
-  //       .style("opacity", "0");
-  //   })javascript add more than one function to event
-  //   .on('mouseover', function() { // on mouse in show line, circles and text
-  //     d3.select(".mouse-line")
-  //       .style("opacity", "1");
-  //     d3.selectAll(".mouse-per-line circle")
-  //       .style("opacity", "1");
-  //     d3.selectAll(".mouse-per-line text")
-  //       .style("opacity", "1");
-  //   })
-  //   .on('mousemove', function() { // mouse moving over canvas
-  //     var mouse = d3.mouse(this);
-  //     d3.select(".mouse-line")
-  //       .attr("d", function() {
-  //         var d = "M" + mouse[0] + "," + self.size.height;
-  //         d += " " + mouse[0] + "," + 0;
-  //         return d;
-  //       });
-
-  //     d3.selectAll(".mouse-per-line")
-  //       .attr("transform", function(d, i) {
-  //         var xFreq = self.x.invert(mouse[0]),
-  //             bisect = d3.bisector(function(d) { return d.f; }).right;
-  //             idx = bisect(d.values, xFreq);
-  //         
-  //         var beginning = 0,
-  //             // end = self.lines[i].getTotalLength(),
-  //             end = self.lines[i][0].getTotalLength(),
-  //             target = null;
-
-  //         while (true){
-  //           target = Math.floor((beginning + end) / 2);
-  //           // pos = self.lines[i].getPointAtLength(target);
-  //           pos = self.lines[i][0].getPointAtLength(target);
-  //           if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-  //               break;
-  //           }vascript add more than one function to event
-  //           if (pos.x > mouse[0])      end = target;
-  //           else if (pos.x < mouse[0]) beginning = target;
-  //           else break; //position found
-  //         }
-  //         
-  //         d3.select(this).select('text')
-  //           .text(self.y.invert(pos.y).toFixed(2));
-  //           
-  //         return "translate(" + mouse[0] + "," + pos.y +")";
-  //       });
-  //   });
-
-};
-
-plotXlinYlin.prototype.toggle_trace = function( ) {
-  var self = this;
-  return function( d ) {
-    document.onselectstart = function() { return false; };
-    var active = self.param.select("#" + d.name + "-path").attr("active");
-    if (active == "true") {
-      active = false
-      self.param.select("#" + d.name + "-rect").style("fill-opacity", "0.1");
-      self.param.select("#" + d.name + "-text").style("fill-opacity", "0.5");
-      self.param.select("#" + d.name + "-path").style("opacity", "0");
-    } else {
-      self.param.select("#" + d.name + "-rect").style("fill-opacity", "1");
-      self.param.select("#" + d.name + "-text").style("fill-opacity", "5");
-      self.param.select("#" + d.name + "-path").style("opacity", "1");
-      active = true 
-    }
-    self.param.select("#" + d.name + "-path").attr("active", active);
-  };
 };
 
 plotXlinYlin.prototype.make_marker_static = function() {
   var self = this;
   return function() {
+    // document.onselectstart = function() { return false; };
+    // active = self.param.select("#" + d.name + "-path").attr("active");
     // console.log(d3.event.keyCode);
     console.log("you clicked after adding marker");
-    mything = d3.select("mouse-over-effects");
+    mything = d3.select(this);
     d3.select(this).attr("pointer-events", "none");
+    // mything = d3.select("mouse-over-effects");
+    // d3.select(mything).attr("pointer-events", "none");
+    d3.select(this).attr("pointer-events", "none");
+
     // if (!self.selected) return;
     // switch (d3.event.keyCode) {
     //   case 8: // backspace
@@ -880,69 +900,6 @@ plotXlinYlin.prototype.change_mode = function() {
     //   case 46: { // delete
   }
 };
-/*
- * Resets the scale to account for the maximum and minimum
- * data values for all collective parameters
- * */
-plotXlinYlin.prototype.reset_scale = function( ) {
-  var self = this;
-  if (self.data_dict != null) { 
-    // self.parse_data_dict( data_dict );
-    var fstart = self.data[0].f;
-    var fstop = self.data[self.data.length - 1].f;
-    
-    var max_ar = [];
-    var min_ar = [];
-
-    for (var propt in self.data[0]) {
-      if (propt != "f" && propt != "number_of_ports"){
-        max_ar.push( math.max.apply(math,self.data.map( function(o){return o[propt]})) );
-        min_ar.push( math.min.apply(math,self.data.map( function(o){return o[propt]})) );
-      };
-    };
-
-    var max_y = math.max(max_ar);
-    var min_y = math.min(min_ar);
-    max_y = math.ceil(max_y/10)*10;
-    min_y = math.floor(min_y/10)*10;
-  } else {
-    // console.log("data_dict = null");
-    var fstart = self.options.xmin
-    var fstop = self.options.xmax
-    var min_y = self.options.ymin
-    var max_y = self.options.ymax
-  };
-
-  // remember, the y scale is inverted, so max_y comes before min_y 
-  self.y.domain([max_y,min_y]);
-  
-  self.x.domain([fstart, fstop]);
-    
-  self.vis.select(".x.axis")
-    .transition()
-    .duration(500)
-    .call(self.xAxis);
-
-  self.vis.select(".y.axis")
-    .transition()
-    .duration(500)
-    .call(self.yAxis);
- 
-  self.param.selectAll("path")
-    .attr("class", "line")
-    .transition()
-    .duration(500)
-    .attr("d", function(d) {
-      return self.logLine(d.values);
-    })
-    .style("stroke", function(d) {
-      return self.color(d.name);
-    });
-
-  
-  self.redraw()();
-};
-
 
 plotXlinYlin.prototype.mousemove = function() {
   var self = this;
