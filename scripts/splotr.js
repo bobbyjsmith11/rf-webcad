@@ -125,7 +125,6 @@ plotXlinYlin = function(elemid, options) {
   this.plot = this.vis.append("rect")
       .attr("width", this.size.width)
       .attr("height", this.size.height)
-      // .style("fill", "#EEEEEE")
       .style("fill", "#E6F7FF")
       .attr("pointer-events", "all")
       .on("mousemove", self.update_location())
@@ -335,18 +334,12 @@ plotXlinYlin.prototype = {
    */
   add_marker : function( ) {
     var self = this;
-    return function(d) {
-      my_param = self.param.select("#" + d.name + "-path");
-    
-      // find the index within self.param which is not null
-      // this is the line that we want to add the marker
-      // var i = my_param[0].findIndex( 
-      var i = my_param[0].findIndex( 
-        function(el) { 
-          return (el !== null);
-        }
-      );
-      line = my_param[0][i]; 
+    return function(d, i) {
+      // my_param = self.param.select("#" + d.name + "-path");
+      var marker_color = self.color(d.name);
+      my_param = d3.select("#" + d.name + "-path");
+      line = self.lines[i][0]; 
+      // line = self.lines[i]; 
 
     //
     //  mouse line section
@@ -354,6 +347,8 @@ plotXlinYlin.prototype = {
       var mouseG = self.vis.append("g")
         .attr("class", "mouse-over-effects");
 
+      // d3.select("#" + d.name + "-path")
+      //   .append(mouseG);
 
       mouseG.append("path") // this is the black vertical line to follow mouse
         .attr("class", "mouse-line")
@@ -361,27 +356,32 @@ plotXlinYlin.prototype = {
         .style("stroke-width", "1px")
         .style("opacity", "0");
 
-      var mousePerLine = mouseG.selectAll('.mouse-per-line')
-        .data(self.params)
+      marker = mouseG.selectAll('.marker-' + line.id)
+        // .data(self.params)
+        .data(my_param)
         .enter()
         .append("g")
-        .attr("class", "mouse-per-line");
+        .attr("class", "marker");
       
-      // self.param.select("#" + d.name + "-path").style("fill-opacity", "0.1");
-      
-      mousePerLine.append("circle")
+      console.log("marker-" + line.id);
+    
+      marker.append("circle")
         .attr("r", 5)
-        .style("stroke", function(d) {
-          return self.color(d.name);
-        })
-        .style("fill", "none")
+        .on("mouseover", function(d) { d3.select(this).style("stroke-width", "3px");})
+        .on("mouseout", function(d) { d3.select(this).style("stroke-width", "1px");})
+        .style("stroke", marker_color)
+        .style("fill", marker_color)
         .style("stroke-width", "1px")
         .style("opacity", "0");
 
-      mousePerLine.append("text")
+      marker.append("text")
+        .attr("class", "marker-text")
+        .on("mouseover", function(d) { d3.select(this).style("font-weight", "bold");})
+        .on("mouseout",  function(d) { d3.select(this).style("font-weight", "normal");})
         .attr("transform", "translate(10,3)");
+        // .attr("transform", "translate(10,3)")
+        // .call(self.make_editable, "marker-text");
 
-      
       mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
         .attr("class", "overlay")
         .attr("id", d.name + "-markerOverlay")
@@ -394,120 +394,202 @@ plotXlinYlin.prototype = {
           console.log("freeze me");
           d3.select(".mouse-line")
             .style("opacity", "0");
-          // d3.selectAll(".mouse-per-line circle")
+          // d3.selectAll(".marker circle")
           //   .style("opacity", "0");
-          // d3.selectAll(".mouse-per-line text")
+          // d3.selectAll(".marker text")
           //   .style("opacity", "0");
-          d3.select("#" + d.name + "-markerOverlay").
-            remove();
+          d3.select("#" + d.name + "-markerOverlay")
+            .remove();
+          // d3.select("#" + d.name + "-markerOverlay")
+          //   .on("mousemove", null);
         })
         // .on("keydown", self.change_mode())
         .on('mouseout', function() { // on mouse out hide line, circles and text
           d3.select(".mouse-line")
             .style("opacity", "0");
-          d3.selectAll(".mouse-per-line circle")
+          d3.selectAll(".marker circle")
+          // d3.selectAll(".marker-" + line.id + " circle")
             .style("opacity", "0");
-          d3.selectAll(".mouse-per-line text")
+          d3.selectAll(".marker text")
             .style("opacity", "0");
         })
         .on('mouseover', function() { // on mouse in show line, circles and text
           console.log("mouseover within line");
           d3.select(".mouse-line")
             .style("opacity", "1");
-          d3.selectAll(".mouse-per-line circle")
+          d3.selectAll(".marker circle")
+          // d3.selectAll(".marker-" + line.id + " circle")
             .style("opacity", "1");
-          d3.selectAll(".mouse-per-line text")
+          d3.selectAll(".marker text")
             .style("opacity", "1");
         })
-        .on("mousemove", function(d) { self.move_marker()(this) });
-        // .on('mousemove', function() { // mouse moving over canvas
-        //   mouse = d3.mouse(this);
-        //   mythis = this;
-        //   d3.select(".mouse-line")
-        //     .attr("d", function() {
-        //       var d = "M" + mouse[0] + "," + self.size.height;
-        //       d += " " + mouse[0] + "," + 0;
-        //       return d;
-        //     });
+        // .on("mousemove", function(d) { self.move_marker()(this) });
+        .on('mousemove', function() { // mouse moving over canvas
+          mouse = d3.mouse(this);
+          mythis = this;
+          d3.select(".mouse-line")
+            .attr("d", function() {
+              var d = "M" + mouse[0] + "," + self.size.height;
+              d += " " + mouse[0] + "," + 0;
+              return d;
+            });
 
-        //   d3.selectAll(".mouse-per-line")
-        //     .attr("transform", function(d, i) {
-        //       var xFreq = self.x.invert(mouse[0]),
-        //           bisect = d3.bisector(function(d) { return d.f; }).right;
-        //           idx = bisect(d.values, xFreq);
+          d3.selectAll(".marker")
+            .attr("transform", function(d, i) {
+              var xFreq = self.x.invert(mouse[0]),
+                  bisect = d3.bisector(function(d) { return d.f; }).right;
+                  idx = bisect(d.values, xFreq);
 
-        //       var beginning = 0,
-        //           // end = self.lines[i][0].getTotalLength(), // adds to all lines
-        //           end = line.getTotalLength(),
-        //           target = null;
-        //     
-        //       while (true){
-        //         target = Math.floor((beginning + end) / 2);
-        //         // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
-        //         pos = line.getPointAtLength(target);
-        //         if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-        //             break;
-        //         }
-        //         if (pos.x > mouse[0])      end = target;
-        //         else if (pos.x < mouse[0]) beginning = target;
-        //         else break; //position found
-        //       }
+              var beginning = 0,
+                  // end = self.lines[i][0].getTotalLength(), // adds to all lines
+                  end = line.getTotalLength(),
+                  target = null;
+            
+              while (true){
+                target = Math.floor((beginning + end) / 2);
+                // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
+                pos = line.getPointAtLength(target);
+                if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                    break;
+                }
+                if (pos.x > mouse[0])      end = target;
+                else if (pos.x < mouse[0]) beginning = target;
+                else break; //position found
+              }
 
-        //       d3.select(this).select('text')
-        //         // .text(self.y.invert(pos.y).toFixed(2));
-        //         .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
+              d3.select(this).select('text')
+                // .text(self.y.invert(pos.y).toFixed(2));
+                .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
 
-        //       return "translate(" + mouse[0] + "," + pos.y +")";
-        //   });
+              return "translate(" + mouse[0] + "," + pos.y +")";
+          });
         
-        // });
+        });
       }
   },
 
-  /** @description move the marker to the current location of the mouse
-   * @param {d3.rect} mythis - rectangle for catching mouse movements
+make_editable: function(d, field)
+  {
+      console.log("make_editable", arguments);
+      console.log("this.parentNode = " + this.parentNode);
+      this
+        .on("mouseover", function() {
+          d3.select(this).style("fill", "red");
+        })
+        .on("mouseout", function() {
+          d3.select(this).style("fill", null);
+        })
+        .on("click", function(d) {
+          var p = this.parentNode;
+          console.log(this, arguments);
+  
+          // inject a HTML form to edit the content here...
+  
+          // bug in the getBBox logic here, but don't know what I've done wrong here;
+          // anyhow, the coordinates are completely off & wrong. :-((
+          var xy = this.getBBox();
+          var p_xy = p.getBBox();
+  
+          xy.x -= p_xy.x;
+          xy.y -= p_xy.y;
+  
+          var el = d3.select(this);
+          var p_el = d3.select(p);
+  
+          var frm = p_el.append("foreignObject");
+  
+          var inp = frm
+              .attr("x", xy.x)
+              .attr("y", xy.y)
+              .attr("width", 300)
+              .attr("height", 25)
+              .append("xhtml:form")
+                      .append("input")
+                          .attr("value", function() {
+                              // nasty spot to place this call, but here we are sure that the <input> tag is available
+                              // and is handily pointed at by 'this':
+                              this.focus();
+  
+                              return d[field];
+                          })
+                          .attr("style", "width: 294px;")
+                          // make the form go away when you jump out (form looses focus) or hit ENTER:
+                          .on("blur", function() {
+                              console.log("blur", this, arguments);
+  
+                              var txt = inp.node().value;
+  
+                              d[field] = txt;
+                              el
+                                  .text(function(d) { return d[field]; });
+  
+                              // Note to self: frm.remove() will remove the entire <g> group! Remember the D3 selection logic!
+                              p_el.select("foreignObject").remove();
+                          })
+                          .on("keypress", function() {
+                              console.log("keypress", this, arguments);
+  
+                              // IE fix
+                              if (!d3.event)
+                                  d3.event = window.event;
+  
+                              var e = d3.event;
+                              if (e.keyCode == 13)
+                              {
+                                  if (typeof(e.cancelBubble) !== 'undefined') // IE
+                                    e.cancelBubble = true;
+                                  if (e.stopPropagation)
+                                    e.stopPropagation();
+                                  e.preventDefault();
+  
+                                  var txt = inp.node().value;
+  
+                                  d[field] = txt;
+                                  el
+                                      .text(function(d) { return d[field]; });
+  
+                                  // odd. Should work in Safari, but the debugger crashes on this instead.
+                                  // Anyway, it SHOULD be here and it doesn't hurt otherwise.
+                                  p_el.select("foreignObject").remove();
+                              }
+                          });
+        });
+  },
+
+
+  /** @description move the marker to the current frequency location
    */
   move_marker : function ( ) {
-    var self = this;
-    return function( mythis ) {
-      var mouse = d3.mouse(mythis);
-      d3.select(".mouse-line")
-        .attr("d", function() {
-          var d = "M" + mouse[0] + "," + self.size.height;
-          d += " " + mouse[0] + "," + 0;
-          return d;
-        });
+    console.log("move_marker()");
+    // d3.selectAll(".marker")
+    //   .attr("transform", function(d, i) {
+    //     var xFreq = self.x.invert(mouse[0]),
+    //         bisect = d3.bisector(function(d) { return d.f; }).right;
+    //         idx = bisect(d.values, xFreq);
 
-      d3.selectAll(".mouse-per-line")
-        .attr("transform", function(d, i) {
-          var xFreq = self.x.invert(mouse[0]),
-              bisect = d3.bisector(function(d) { return d.f; }).right;
-              idx = bisect(d.values, xFreq);
+    //     var beginning = 0,
+    //         // end = self.lines[i][0].getTotalLength(), // adds to all lines
+    //         end = line.getTotalLength(),
+    //         target = null;
+    //   
+    //     while (true){
+    //       target = Math.floor((beginning + end) / 2);
+    //       // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
+    //       pos = line.getPointAtLength(target);
+    //       if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+    //           break;
+    //       }
+    //       if (pos.x > mouse[0])      end = target;
+    //       else if (pos.x < mouse[0]) beginning = target;
+    //       else break; //position found
+    //     }
 
-          var beginning = 0,
-              // end = self.lines[i][0].getTotalLength(), // adds to all lines
-              end = line.getTotalLength(),
-              target = null;
-        
-          while (true){
-            target = Math.floor((beginning + end) / 2);
-            // pos = self.lines[i][0].getPointAtLength(target); // adds to all lines
-            pos = line.getPointAtLength(target);
-            if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-                break;
-            }
-            if (pos.x > mouse[0])      end = target;
-            else if (pos.x < mouse[0]) beginning = target;
-            else break; //position found
-          }
+    //     d3.select(this).select('text')
+    //       // .text(self.y.invert(pos.y).toFixed(2));
+    //       .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
 
-          d3.select(this).select('text')
-            // .text(self.y.invert(pos.y).toFixed(2));
-            .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
-
-          return "translate(" + mouse[0] + "," + pos.y +")";
-      });
-    }
+    //     return "translate(" + mouse[0] + "," + pos.y +")";
+    // });
   },
 
   toggle_trace : function( ) {
@@ -520,10 +602,18 @@ plotXlinYlin.prototype = {
         self.param.select("#" + d.name + "-rect").style("fill-opacity", "0.1");
         self.param.select("#" + d.name + "-text").style("fill-opacity", "0.5");
         self.param.select("#" + d.name + "-path").style("opacity", "0");
+        // d3.selectAll("." + d.name + "-marker").style("opacity", "0");
+        d3.selectAll(".marker-s21db-path").style("opacity", "0");
       } else {
         self.param.select("#" + d.name + "-rect").style("fill-opacity", "1");
         self.param.select("#" + d.name + "-text").style("fill-opacity", "5");
         self.param.select("#" + d.name + "-path").style("opacity", "1");
+        // d3.selectAll("." + d.name + "-marker").style("opacity", "1");
+        d3.selectAll(".marker-s21db-path").style("opacity", "1");
+        // d3.selectAll(".marker circle")
+        //   .style("opacity", "1");
+        // d3.selectAll(".marker text")
+        //   .style("opacity", "1");
         active = true 
       }
       self.param.select("#" + d.name + "-path").attr("active", active);
@@ -814,7 +904,7 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     .attr("id", function(d) { return d.name + "-path"; })
     .attr("active", true)
     .attr("class", "data-line")
-    .on("click", function(d) { self.add_marker()(d); } )
+    .on("click", function(d, i) { self.add_marker()(d, i); } )
     .on("mouseover", function(d) { d3.select(this).style("stroke-width", "5px");})
     .on("mouseout", function(d) { d3.select(this).style("stroke-width", "3px");})
     .attr("d", function(d) {
@@ -851,6 +941,16 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     .text(function(d) {
       return d.name;
     });
+  
+  // self.param.append("text")
+  //   .attr("id", function(d) { return d.name + "-text"; })
+  //   .attr('x', self.size.width + 20)
+  //   .attr('y', function(d, i) {
+  //     return (i * 20) + 9;
+  //   })
+  //   .text(function(d) {
+  //     return d.name;
+  //   });
   
     self.lines = graph.param.selectAll("path");
 
@@ -1126,8 +1226,6 @@ function dragend_handler(ev) {
     ev.dataTransfer.clearData();
   }
 };
-
-
 
 
 
