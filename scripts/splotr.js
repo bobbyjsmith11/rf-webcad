@@ -338,9 +338,11 @@ plotXlinYlin.prototype = {
       // my_param = self.param.select("#" + d.name + "-path");
       var marker_color = self.color(d.name);
       my_param = d3.select("#" + d.name + "-path");
+      // my_param = self.params[i];
+      this_param = self.param[i];
       line = self.lines[i][0]; 
       // line = self.lines[i]; 
-
+      my_this = this;
     //
     //  mouse line section
     //
@@ -356,7 +358,8 @@ plotXlinYlin.prototype = {
         .style("stroke-width", "1px")
         .style("opacity", "0");
 
-      marker = mouseG.selectAll('.marker-' + line.id)
+      marker = mouseG.selectAll('.marker')
+      // marker = this.selectAll('.marker')
         // .data(self.params)
         .data(my_param)
         .enter()
@@ -366,6 +369,7 @@ plotXlinYlin.prototype = {
       console.log("marker-" + line.id);
     
       marker.append("circle")
+        .attr("class", "marker-" + i)   // marker-2 for trace 2 for example
         .attr("r", 5)
         .on("mouseover", function(d) { d3.select(this).style("stroke-width", "3px");})
         .on("mouseout", function(d) { d3.select(this).style("stroke-width", "1px");})
@@ -375,12 +379,10 @@ plotXlinYlin.prototype = {
         .style("opacity", "0");
 
       marker.append("text")
-        .attr("class", "marker-text")
+        .attr("class", "marker-text-" + i)    // marker-text-3 for trace 3 for example
         .on("mouseover", function(d) { d3.select(this).style("font-weight", "bold");})
         .on("mouseout",  function(d) { d3.select(this).style("font-weight", "normal");})
         .attr("transform", "translate(10,3)");
-        // .attr("transform", "translate(10,3)")
-        // .call(self.make_editable, "marker-text");
 
       mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
         .attr("class", "overlay")
@@ -594,7 +596,8 @@ make_editable: function(d, field)
 
   toggle_trace : function( ) {
     var self = this;
-    return function( d ) {
+    return function( d, i ) {
+      console.log("i = " + i);
       document.onselectstart = function() { return false; };
       var active = self.param.select("#" + d.name + "-path").attr("active");
       if (active == "true") {
@@ -602,18 +605,22 @@ make_editable: function(d, field)
         self.param.select("#" + d.name + "-rect").style("fill-opacity", "0.1");
         self.param.select("#" + d.name + "-text").style("fill-opacity", "0.5");
         self.param.select("#" + d.name + "-path").style("opacity", "0");
-        // d3.selectAll("." + d.name + "-marker").style("opacity", "0");
-        d3.selectAll(".marker-s21db-path").style("opacity", "0");
+      
+        // backup 
+        d3.selectAll(".marker-" + i).style("opacity", "0");
+        d3.selectAll(".marker-text-" + i).style("opacity", "0");
+        // 
       } else {
         self.param.select("#" + d.name + "-rect").style("fill-opacity", "1");
         self.param.select("#" + d.name + "-text").style("fill-opacity", "5");
         self.param.select("#" + d.name + "-path").style("opacity", "1");
-        // d3.selectAll("." + d.name + "-marker").style("opacity", "1");
-        d3.selectAll(".marker-s21db-path").style("opacity", "1");
-        // d3.selectAll(".marker circle")
-        //   .style("opacity", "1");
-        // d3.selectAll(".marker text")
-        //   .style("opacity", "1");
+        self.param.selectAll(".marker").selectAll("circle").style("opacity", 1);
+
+        // backup
+        d3.selectAll(".marker-" + i).style("opacity", "1");
+        d3.selectAll(".marker-text-" + i).style("opacity", "1");
+        // 
+
         active = true 
       }
       self.param.select("#" + d.name + "-path").attr("active", active);
@@ -893,18 +900,151 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
       })
     };
   });
-
   
   self.param = this.vis.selectAll(".param")
     .data(self.params)
     .enter().append("g")
     .attr("class", "logMag");
 
+  // self.param.selectAll(".data-markers")
+  //   .data([])
+  //   .enter().append("circle")
+  //   .attr("class", "data-marker")
+  //   .attr("r", 5)
+  //   .on("mouseover", function(d) { d3.select(this).style("stroke-width", "3px");})
+  //   .on("mouseout", function(d) { d3.select(this).style("stroke-width", "1px");})
+  //   .style("stroke", "red")
+  //   .style("fill", "red")
+  //   .style("stroke-width", "1px")
+  //   .style("opacity", "0");
+
+  // self.param.append("g")
+  //   .attr("class", "mouse-over-effects");
+
   self.param.append("path")
     .attr("id", function(d) { return d.name + "-path"; })
     .attr("active", true)
     .attr("class", "data-line")
-    .on("click", function(d, i) { self.add_marker()(d, i); } )
+    // .on("click", function(d, i) { self.add_marker()(d, i); } )    // this is the backup function
+    .on("click", function(d, i) { 
+      var marker_color = self.color(d.name);
+      my_path = d3.select("#" + d.name + "-path");
+      my_this = this;      
+      this_param = self.param[i];
+      line = self.lines[i][0]; 
+      
+      var mouseG = self.vis.append("g")
+        .attr("class", "mouse-over-effects");
+
+      mouseG.append("path") // this is the black vertical line to follow mouse
+        .attr("class", "mouse-line")
+        .style("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
+
+      marker = mouseG.selectAll('.marker')
+        .data(my_path)
+        .enter()
+        .append("g")
+        .attr("class", "marker");
+      
+      marker.append("circle")
+        .attr("class", "marker-" + i)   // marker-2 for trace 2 for example
+        .attr("r", 5)
+        .on("mouseover", function(d) { d3.select(this).style("stroke-width", "3px");})
+        .on("mouseout", function(d) { d3.select(this).style("stroke-width", "1px");})
+        .style("stroke", marker_color)
+        .style("fill", marker_color)
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
+
+      marker.append("text")
+        .attr("class", "marker-text-" + i)    // marker-text-3 for trace 3 for example
+        .on("mouseover", function(d) { d3.select(this).style("font-weight", "bold");})
+        .on("mouseout",  function(d) { d3.select(this).style("font-weight", "normal");})
+        .attr("transform", "translate(10,3)");
+
+      mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+        .attr("class", "overlay")
+        .attr("id", d.name + "-markerOverlay")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr('width', self.size.width) // can't catch mouse events on a g element
+        .attr('height', self.size.height)
+        .on('click', function() { // on click, hide line, freeze marker and remove this rect
+          mouseG_this = this;
+          console.log("freeze me");
+          // this.remove();
+          // d3.select("#" + d.name + "-markerOverlay").off();
+          // mouseG.remove();
+          d3.select(".mouse-line")
+            .style("opacity", "0");
+          // this.on("mouseover", null)
+          //     .on("mousemove", null); 
+          // d3.selectAll(".mouse-over-effects")
+          //   .select("mouse-line").remove();
+          d3.select("#" + d.name + "-markerOverlay")
+          // .on("mouseover", null)
+          // .on("mousemove", null)
+          // .on("mouseout", null)
+          .remove();
+        })
+        .on('mouseout', function() { // on mouse out hide line, circles and text
+          d3.select(".mouse-line")
+            .style("opacity", "0");
+          d3.selectAll(".marker circle")
+            .style("opacity", "0");
+          d3.selectAll(".marker text")
+            .style("opacity", "0");
+        })
+        .on('mouseover', function() { // on mouse in show line, circles and text
+          console.log("mouseover within line");
+          d3.select(".mouse-line")
+            .style("opacity", "1");
+          d3.selectAll(".marker circle")
+            .style("opacity", "1");
+          d3.selectAll(".marker text")
+            .style("opacity", "1");
+        })
+        .on('mousemove', function() { // mouse moving over canvas
+          mouse = d3.mouse(this);
+          console.log("mousemove");
+          d3.select(".mouse-line")
+            .attr("d", function() {
+              var d = "M" + mouse[0] + "," + self.size.height;
+              d += " " + mouse[0] + "," + 0;
+              return d;
+            });
+          // console.log("d.name = " + d.name);
+          d3.selectAll(".marker")
+            .attr("transform", function(d, i) {
+              var xFreq = self.x.invert(mouse[0]),
+                  bisect = d3.bisector(function(d) { return d.f; }).right;
+                  idx = bisect(d.values, xFreq);
+
+              var beginning = 0,
+                  end = line.getTotalLength(),
+                  target = null;
+            
+              while (true){
+                target = Math.floor((beginning + end) / 2);
+                pos = line.getPointAtLength(target);
+                if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                    break;
+                }
+                if (pos.x > mouse[0])      end = target;
+                else if (pos.x < mouse[0]) beginning = target;
+                else break; //position found
+              }
+
+              d3.select(this).select('text')
+                .text(d3.format(".3s")(self.x.invert(pos.x)) + "," + self.y.invert(pos.y).toFixed(2));
+
+              return "translate(" + mouse[0] + "," + pos.y +")";
+          });
+        
+        });
+      })
     .on("mouseover", function(d) { d3.select(this).style("stroke-width", "5px");})
     .on("mouseout", function(d) { d3.select(this).style("stroke-width", "3px");})
     .attr("d", function(d) {
@@ -930,7 +1070,7 @@ plotXlinYlin.prototype.add_plot_lines = function( ) {
     })
     .on("mouseover", function(d) { d3.select(this).attr("width", 12).attr("height",12);})
     .on("mouseout", function(d) { d3.select(this).attr("width", 10).attr("height",10);})
-    .on("click", function(d) { self.toggle_trace()(d) });
+    .on("click", function(d, i) { self.toggle_trace()(d, i) });
 
   self.param.append("text")
     .attr("id", function(d) { return d.name + "-text"; })
@@ -1004,7 +1144,7 @@ plotXlinYlin.prototype.change_mode = function() {
 plotXlinYlin.prototype.mousemove = function() {
   var self = this;
   return function() {
-    console.log("mousemove");
+    // console.log("mousemove");
     var p = d3.svg.mouse(self.vis[0][0]),
         t = d3.event.changedTouches;
     
